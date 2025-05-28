@@ -75,9 +75,9 @@ TigerLeap is a memory-based card matching game where players are given a hand of
 
 | Difficulty | Time Limit | Challenge Level |
 |------------|------------|-----------------|
-| **Easy** | 1 minute | Beginner-friendly with generous time |
+| **Easy** | 5 minute | Beginner-friendly with generous time |
 | **Intermediate** | 3 minutes | Moderate challenge for regular players |
-| **Hard** | 5 minutes | Maximum challenge for expert players |
+| **Hard** | 1 minutes | Maximum challenge for expert players |
 
 ## Controls
 
