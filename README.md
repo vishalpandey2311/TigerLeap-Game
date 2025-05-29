@@ -7,7 +7,7 @@ A challenging 3D memory card matching game built with Unity, where players must 
 ![Game Screenshot](screenshots/gameplay.png)
 *Main gameplay showing the 5x9 card grid and player hand*
 
-![Difficulty Selection](screenshots/difficulty.png)
+![Difficulty Selection](screenshots/Difficulty.png)
 *Difficulty selection screen*
 
 ### 🎮 [Live Demo](https://your-demo-link.com) | 📦 [Download Latest Release](https://github.com/vishalpandey2311/TigerLeap-Game/releases)
