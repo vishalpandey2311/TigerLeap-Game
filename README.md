@@ -4,7 +4,7 @@ A challenging 3D memory card matching game built with Unity, where players must 
 
 ## Demo & Screenshots
 
-![Game Screenshot](screenshots/gameplay.png)
+![Game Screenshot](screenshots/Gameplay.png)
 *Main gameplay showing the 5x9 card grid and player hand*
 
 ![Difficulty Selection](screenshots/Difficulty.png)
