@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using TMPro;
+using UnityEngine.SceneManagement; // NEW: Add using directive for scene management
 
 public class GameManager : MonoBehaviour
 {
@@ -287,10 +288,21 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    // Play sound for
+    // Play sound for correct match
     public void PlayCorrectMatchSound()
     {
-        if (audioSource != null && correctMatchSound != null)
+        // Check PersistentSoundManager first
+        bool soundEnabled = true;
+        if (PersistentSoundManager.Instance != null)
+        {
+            soundEnabled = PersistentSoundManager.Instance.IsGlobalSoundEnabled();
+        }
+        else if (AudioManager.Instance != null)
+        {
+            soundEnabled = AudioManager.Instance.IsGlobalSoundEnabled();
+        }
+        
+        if (soundEnabled && audioSource != null && correctMatchSound != null)
         {
             audioSource.PlayOneShot(correctMatchSound);
         }
@@ -299,7 +311,18 @@ public class GameManager : MonoBehaviour
     // Play sound for wrong match
     public void PlayWrongMatchSound()
     {
-        if (audioSource != null && wrongMatchSound != null)
+        // Check PersistentSoundManager first
+        bool soundEnabled = true;
+        if (PersistentSoundManager.Instance != null)
+        {
+            soundEnabled = PersistentSoundManager.Instance.IsGlobalSoundEnabled();
+        }
+        else if (AudioManager.Instance != null)
+        {
+            soundEnabled = AudioManager.Instance.IsGlobalSoundEnabled();
+        }
+        
+        if (soundEnabled && audioSource != null && wrongMatchSound != null)
         {
             audioSource.PlayOneShot(wrongMatchSound);
         }
@@ -308,27 +331,36 @@ public class GameManager : MonoBehaviour
     // Play win sound
     public void PlayWinSound()
     {
-        if (audioSource != null && gameWinSound != null)
+        if (AudioManager.Instance != null && AudioManager.Instance.IsGlobalSoundEnabled())
         {
-            audioSource.PlayOneShot(gameWinSound);
+            if (audioSource != null && gameWinSound != null)
+            {
+                audioSource.PlayOneShot(gameWinSound);
+            }
         }
     }
     
     // Play column completed sound
     public void PlayColumnCompletedSound()
     {
-        if (audioSource != null && columnCompletedSound != null)
+        if (AudioManager.Instance != null && AudioManager.Instance.IsGlobalSoundEnabled())
         {
-            audioSource.PlayOneShot(columnCompletedSound);
+            if (audioSource != null && columnCompletedSound != null)
+            {
+                audioSource.PlayOneShot(columnCompletedSound);
+            }
         }
     }
     
     // NEW: Play lose game sound
     public void PlayLoseSound()
     {
-        if (audioSource != null && loseGameSound != null)
+        if (AudioManager.Instance != null && AudioManager.Instance.IsGlobalSoundEnabled())
         {
-            audioSource.PlayOneShot(loseGameSound);
+            if (audioSource != null && loseGameSound != null)
+            {
+                audioSource.PlayOneShot(loseGameSound);
+            }
         }
     }
     
@@ -508,6 +540,10 @@ public class GameManager : MonoBehaviour
     
     public void RestartGame()
     {
+        // Play button sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
+        
         // Reload the current scene
         UnityEngine.SceneManagement.SceneManager.LoadScene(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
@@ -516,6 +552,10 @@ public class GameManager : MonoBehaviour
     // New method to start and handle the countdown
     public void StartInitialCountdown()
     {
+        Debug.Log("StartInitialCountdown called!");
+        Debug.Log($"Countdown text null: {countdownText == null}");
+        Debug.Log($"Initial view time: {initialViewTime}");
+        
         if (countdownText != null)
         {
             countdownText.gameObject.SetActive(true);
@@ -523,9 +563,8 @@ public class GameManager : MonoBehaviour
             // Play countdown music using AudioManager
             if (AudioManager.Instance != null)
             {
-                AudioManager.Instance.Play("countdown"); // Make sure you have a sound named "countdown" in AudioManager
+                AudioManager.Instance.Play("countdown");
             }
-            // Fallback to direct AudioSource if AudioManager isn't available
             else if (audioSource != null && countdownMusic != null)
             {
                 audioSource.clip = countdownMusic;
@@ -534,6 +573,10 @@ public class GameManager : MonoBehaviour
             }
             
             StartCoroutine(CountdownRoutine());
+        }
+        else
+        {
+            Debug.LogError("Countdown text is null!");
         }
     }
     
@@ -701,6 +744,10 @@ public class GameManager : MonoBehaviour
     // Toggle between paused and unpaused states
     public void TogglePause()
     {
+        // Play button sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
+        
         if (isPaused)
         {
             ResumeGame();
@@ -773,6 +820,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void QuitGame()
     {
+        // Play button sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
+        
         // Add any cleanup or save operations here before quitting
         
         // Log message (visible in the editor console)
@@ -804,6 +855,10 @@ public class GameManager : MonoBehaviour
     // NEW: Show instructions from pause menu
     public void ShowInstructionsFromPause()
     {
+        // Play button sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
+        
         if (instructionPanel != null)
         {
             // Hide pause panel
@@ -820,6 +875,10 @@ public class GameManager : MonoBehaviour
     // Modified: Called when "Got It" button is clicked
     public void OnGotItButtonClicked()
     {
+        // Play button sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
+        
         if (instructionPanel != null)
         {
             instructionPanel.SetActive(false);
@@ -932,7 +991,7 @@ public class GameManager : MonoBehaviour
             // Set game over text
             if (gameOverText != null)
             {
-                gameOverText.text = "GAME OVER\nAttempts: " + attempts + 
+                gameOverText.text = "Attempts: " + attempts + 
                                    "\nMatches: " + currentMatches + "/" + totalMatchesNeeded;
             }
         }
@@ -1008,19 +1067,27 @@ public class GameManager : MonoBehaviour
     // Called when player selects a difficulty
     public void SelectDifficulty(float timeInSeconds)
     {
+        Debug.Log($"Difficulty selected: {timeInSeconds} seconds");
+        
+        // Play button sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
+    
         // Store the selected time
         selectedGameTime = timeInSeconds;
         totalGameTime = timeInSeconds;
-        
+    
         // Mark difficulty as selected
         difficultySelected = true;
-        
+    
+        Debug.Log($"Game started flag: {gameStarted}");
+    
         // Hide difficulty panel
         if (difficultyPanel != null)
         {
             difficultyPanel.SetActive(false);
         }
-        
+    
         // Now start the game
         StartGameAfterDifficultySelection();
     }
@@ -1042,6 +1109,44 @@ public class GameManager : MonoBehaviour
         isTimerRunning = false;
         UpdateTimerUI();
         
-        // The CardSpawner should already be initialized, so cards will start their countdown
+        // FIXED: Explicitly start the countdown after difficulty selection
+        StartCoroutine(DelayedCountdownStart());
+    }
+
+    // NEW: Start countdown after a brief delay to ensure everything is set up
+    private IEnumerator DelayedCountdownStart()
+    {
+        // Wait one frame to ensure all UI elements are properly set up
+        yield return null;
+        
+        // Now start the countdown
+        StartInitialCountdown();
+    }
+
+    public void LoadMainMenu()
+    {
+        // Stop any playing audio
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayButtonClick();
+        }
+        
+        // Reset time scale in case game was paused
+        Time.timeScale = 1f;
+        
+        // Clear any static flags to prevent issues
+        // CardController.countdownStarted = false; // Reset the static flag if needed
+        
+        try
+        {
+            // Load the MainMenu scene
+            SceneManager.LoadScene("MainMenu");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load MainMenu scene: {e.Message}");
+            // Fallback: try loading by index
+            SceneManager.LoadScene(0);
+        }
     }
 }

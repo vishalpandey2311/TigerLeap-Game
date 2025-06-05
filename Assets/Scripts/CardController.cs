@@ -1,31 +1,126 @@
 using UnityEngine;
 using System.Collections;
+using MoreMountains.Feedbacks;
 
 public class CardController : MonoBehaviour
 {
     private bool isFlipped = false;
-    private bool isBusy = false;          // To prevent double clicks
-    private Quaternion faceRotation;      // Face-up rotation
-    private Quaternion backRotation;      // Face-down rotation
-    private Collider col;                 // Collider for interaction
-    private bool isMatched = false;       // Flag for matched cards
+    private bool isBusy = false;
+    private Quaternion faceRotation;
+    private Quaternion backRotation;
+    private Collider col;
+    private bool isMatched = false;
 
     [HideInInspector]
-    public int cardTypeId = -1;           // Card type identifier for matching
+    public int cardTypeId = -1;
+
+    // Feel Animation Components
+    [Header("Feel Animation")]
+    private MMF_Player flipFeedbackPlayer;
+    private MMF_RotationSpring rotationSpring;
+    private bool isFeelSetupComplete = false;
 
     // Static flag to ensure the countdown is only triggered once
     private static bool countdownStarted = false;
+
+    void Awake()
+    {
+        col = GetComponent<Collider>();
+
+        // Set up rotations
+        backRotation = Quaternion.Euler(180f, 0f, 0f);
+        faceRotation = Quaternion.Euler(0f, 0f, 0f);
+    }
 
     void Start()
     {
         // It will be face-up at the start
         transform.rotation = faceRotation;
 
+        // Setup Feel animation system AFTER Start
+        SetupFeelAnimation();
+
         // Wait for game to actually start before doing anything
         StartCoroutine(WaitForGameStart());
     }
 
-    // NEW: Wait for GameManager to signal game start
+    // FIXED: Setup Feel animation components properly
+    private void SetupFeelAnimation()
+    {
+        // Get the MMF_Player component from this GameObject
+        flipFeedbackPlayer = GetComponent<MMF_Player>();
+        
+        if (flipFeedbackPlayer == null)
+        {
+            Debug.LogError($"No MMF_Player found on {gameObject.name}! Please add MMF_Player component to your card prefabs.");
+            isFeelSetupComplete = false;
+            return;
+        }
+
+        // Initialize the feedback player properly
+        flipFeedbackPlayer.Initialization();
+        
+        // Wait a frame then setup the rotation spring
+        StartCoroutine(SetupRotationSpringDelayed());
+    }
+
+    // FIXED: Delayed setup to ensure proper initialization
+    private IEnumerator SetupRotationSpringDelayed()
+    {
+        yield return null; // Wait one frame
+        
+        // Find the rotation spring feedback in the feedbacks list
+        foreach (var feedback in flipFeedbackPlayer.FeedbacksList)
+        {
+            if (feedback is MMF_RotationSpring spring)
+            {
+                rotationSpring = spring;
+                
+                // FIXED: Configure spring properly
+                rotationSpring.AnimateRotationTarget = this.transform;
+                rotationSpring.Mode = MMF_RotationSpring.Modes.MoveTo;
+                
+                // FIXED: Use correct property names for spring settings
+                rotationSpring.FrequencyX = 2f;
+                rotationSpring.DampingX = 0.6f;
+                
+                isFeelSetupComplete = true;
+                Debug.Log($"✅ Feel animation setup complete for {gameObject.name}");
+                break;
+            }
+        }
+        
+        if (rotationSpring == null)
+        {
+            Debug.LogError($"❌ No MMF_RotationSpring found in {gameObject.name}! Please add Rotation Spring feedback to MMF_Player.");
+            isFeelSetupComplete = false;
+        }
+    }
+
+    // FIXED: Feel-based card flip method with proper error handling
+    private void FlipCardWithFeel(bool toFaceUp)
+    {
+        if (!isFeelSetupComplete || rotationSpring == null)
+        {
+            Debug.LogWarning($"Feel not ready for {gameObject.name}, using fallback");
+            StartCoroutine(RotateCard(toFaceUp ? faceRotation : backRotation, 0.5f));
+            return;
+        }
+        
+        // FIXED: Set target rotation properly
+        Vector3 targetRotation = toFaceUp ? Vector3.zero : new Vector3(180f, 0f, 0f);
+        
+        // FIXED: Configure the spring rotation with proper values
+        rotationSpring.MoveToRotationMin = targetRotation;
+        rotationSpring.MoveToRotationMax = targetRotation;
+        
+        // Play the feedback
+        flipFeedbackPlayer.PlayFeedbacks();
+        
+        Debug.Log($"🔄 Feel flip: {gameObject.name} to {(toFaceUp ? "face-up" : "face-down")}");
+    }
+
+    // Wait for GameManager to signal game start
     IEnumerator WaitForGameStart()
     {
         // Wait until game is started from GameManager
@@ -45,18 +140,6 @@ public class CardController : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-        col = GetComponent<Collider>();
-
-        // Initially, the card will be face-up
-        // X-axis par 180° rotate karke card ko face-down rakho
-        backRotation = Quaternion.Euler(180f, 0f, 0f);
-
-        // Face-up position (flat position)
-        faceRotation = Quaternion.Euler(0f, 0f, 0f);
-    }
-
     // Initial seconds ke liye cards ko face-up dikhane ke liye
     IEnumerator InitialShowAndFlip()
     {
@@ -71,8 +154,16 @@ public class CardController : MonoBehaviour
         // Wait for the view time
         yield return new WaitForSeconds(viewTime);
 
-        // Card ko face-down karo with animation
-        yield return RotateCard(backRotation, 0.5f);
+        // FIXED: Card ko face-down karo with Feel animation
+        if (isFeelSetupComplete)
+        {
+            FlipCardWithFeel(false);
+            yield return new WaitForSeconds(1.0f); // Increased wait time for spring animation
+        }
+        else
+        {
+            yield return RotateCard(backRotation, 0.5f);
+        }
 
         // Card ke interaction ko enable karo
         col.enabled = true;
@@ -84,8 +175,8 @@ public class CardController : MonoBehaviour
         // Don't allow interaction until game has started
         if (GameManager.Instance != null && !GameManager.Instance.gameStarted) return;
         
-        if (isBusy) return;               // Agr abhi animation chal rahi hai to ignore
-        if (isMatched) return;            // Already matched cards ko ignore karo
+        if (isBusy) return;
+        if (isMatched) return;
         
         // Increment attempts when a card is clicked
         if (GameManager.Instance != null && !isFlipped)
@@ -98,13 +189,22 @@ public class CardController : MonoBehaviour
 
     IEnumerator FlipRoutine()
     {
-        isBusy = true;                    // Busy ho gaya
-        col.enabled = false;              // Collider disable
+        isBusy = true;
+        col.enabled = false;
 
         if (!isFlipped)
         {
-            // Card ko face-up karo
-            yield return RotateCard(faceRotation, 0.5f);
+            // Card ko face-up karo with Feel animation
+            if (isFeelSetupComplete)
+            {
+                FlipCardWithFeel(true);
+                yield return new WaitForSeconds(1.0f); // Increased wait time
+            }
+            else
+            {
+                yield return RotateCard(faceRotation, 0.5f);
+            }
+            
             isFlipped = true;
 
             // Check if this card matches with any player hand card
@@ -115,11 +215,8 @@ public class CardController : MonoBehaviour
                 // Card match ho gaya, permanently face-up rakho
                 isMatched = true;
 
-                // Notify GameManager that a match has been found (pass this card reference)
+                // Notify GameManager that a match has been found
                 GameManager.Instance.CardMatched(cardTypeId, this);
-
-                // Keep the card flipped, but don't enable the collider yet
-                // The collider will be controlled by the MoveToCollectionGrid method
             }
             else
             {
@@ -132,8 +229,17 @@ public class CardController : MonoBehaviour
                 // No match, wait and flip back
                 yield return new WaitForSeconds(2f);
 
-                // Wapas face-down position mein jaao
-                yield return RotateCard(backRotation, 0.5f);
+                // Wapas face-down position mein jaao with Feel animation
+                if (isFeelSetupComplete)
+                {
+                    FlipCardWithFeel(false);
+                    yield return new WaitForSeconds(1.0f);
+                }
+                else
+                {
+                    yield return RotateCard(backRotation, 0.5f);
+                }
+                
                 isFlipped = false;
 
                 // Enable interaction again
@@ -166,7 +272,7 @@ public class CardController : MonoBehaviour
         return false;
     }
 
-    // Smooth rotation Coroutine
+    // Keep existing rotation method as fallback
     IEnumerator RotateCard(Quaternion targetRot, float duration)
     {
         Quaternion startRot = transform.rotation;
@@ -213,7 +319,7 @@ public class CardController : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.SmoothStep(0, 1, elapsed / moveUpDuration);
-            Vector3 liftedPos = startPos + Vector3.up * 2f * t; // Move 2 units up
+            Vector3 liftedPos = startPos + Vector3.up * 2f * t;
             transform.position = liftedPos;
             yield return null;
         }
@@ -239,26 +345,44 @@ public class CardController : MonoBehaviour
         isBusy = false;
     }
 
-    // Reset the static flag when the scene is unloaded
+    // FIXED: Clean destroy method
     void OnDestroy()
     {
+        // Safely clean up Feel components
+        if (flipFeedbackPlayer != null && flipFeedbackPlayer.IsPlaying)
+        {
+            try
+            {
+                flipFeedbackPlayer.StopFeedbacks();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"Error stopping feedbacks: {e.Message}");
+            }
+        }
+        
         // Reset the static flag when any card is destroyed
-        // This ensures it works properly when restarting the game
         countdownStarted = false;
     }
 
-    // Apply a style to collected cards
-    // public void ApplyCollectedCardStyle()
-    // {
-    //     // Change the material or add effects to make collected cards look different
-    //     Renderer cardRenderer = GetComponent<Renderer>();
-    //     if (cardRenderer != null)
-    //     {
-    //         // Apply a different material or tint to show it's collected
-    //         cardRenderer.material.color = new Color(0.8f, 0.8f, 1f); // Slight blue tint
-            
-    //         // You could also add a particle effect or other visual indication
-    //         // Instantiate(collectionParticleEffect, transform.position, Quaternion.identity);
-    //     }
-    // }
+    // FIXED: Debug method to test Feel animation
+    [ContextMenu("Test Feel Animation")]
+    private void TestFeelAnimation()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning("Test Feel Animation only works in Play mode!");
+            return;
+        }
+
+        if (isFeelSetupComplete && rotationSpring != null)
+        {
+            FlipCardWithFeel(!isFlipped);
+            Debug.Log("✅ Feel animation triggered!");
+        }
+        else
+        {
+            Debug.LogError("❌ Feel animation not set up properly! Check console for setup errors.");
+        }
+    }
 }
