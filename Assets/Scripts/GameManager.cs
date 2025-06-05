@@ -1149,4 +1149,48 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(0);
         }
     }
+
+    // NEW: Handle instruction panel close with proper state management
+    public void CloseInstructionPanel()
+    {
+        if (instructionPanel != null)
+        {
+            instructionPanel.SetActive(false);
+        }
+        
+        // Check if we came from pause menu
+        if (isInInstructionMode)
+        {
+            // Return to pause panel instead of resuming game
+            if (pausePanel != null)
+            {
+                pausePanel.SetActive(true);
+            }
+            
+            // Reset the flag
+            isInInstructionMode = false;
+            
+            // Ensure the game remains paused
+            isPaused = true;
+            isTimerRunning = false;
+            Time.timeScale = 0f;
+            
+            // Make sure pause button shows resume icon
+            if (pauseButton != null)
+            {
+                pauseButton.GetComponent<Image>().sprite = resumeSprite;
+            }
+        }
+        else
+        {
+            // Show UI elements
+            if (timerPanel != null)
+                timerPanel.SetActive(true);
+            if (attemptsPanel != null)
+                attemptsPanel.SetActive(true);
+            
+            // Start the game after instructions are dismissed
+            StartGameAfterInstructions();
+        }
+    }
 }
