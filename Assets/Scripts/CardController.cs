@@ -23,13 +23,41 @@ public class CardController : MonoBehaviour
     // Static flag to ensure the countdown is only triggered once
     private static bool countdownStarted = false;
 
+    // Completion Effect Components
+    [Header("Completion Effect")]
+    private Renderer cardRenderer;
+    private Material originalMaterial;
+    private bool isPartOfCompletedSet = false;
+    private MMF_Player completionFeedbackPlayer;
+    
+    // Colors and effect settings
+    private Color originalColor = Color.white;
+    private Color completedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+    private Color highlightColor = new Color(1f, 1f, 0.8f, 1f); // Slight golden highlight
+
     void Awake()
     {
         col = GetComponent<Collider>();
+        
+        // Setup completion effect components
+        SetupCompletionEffect();
+    }
 
-        // Set up rotations
-        backRotation = Quaternion.Euler(180f, 0f, 0f);
-        faceRotation = Quaternion.Euler(0f, 0f, 0f);
+    private void SetupCompletionEffect()
+    {
+        cardRenderer = GetComponent<Renderer>();
+        if (cardRenderer != null)
+        {
+            originalMaterial = cardRenderer.material;
+            originalColor = cardRenderer.material.color;
+        }
+
+        // Try to get a second MMF_Player for completion effects
+        MMF_Player[] players = GetComponents<MMF_Player>();
+        if (players.Length > 1)
+        {
+            completionFeedbackPlayer = players[1];
+        }
     }
 
     void Start()
@@ -384,5 +412,86 @@ public class CardController : MonoBehaviour
         {
             Debug.LogError("❌ Feel animation not set up properly! Check console for setup errors.");
         }
+    }
+
+    // Enhanced completion effect with multiple stages
+    public void MarkAsCompletedSet()
+    {
+        if (isPartOfCompletedSet) return;
+        
+        isPartOfCompletedSet = true;
+        StartCoroutine(EnhancedCompletionEffect());
+    }
+
+    IEnumerator EnhancedCompletionEffect()
+    {
+        if (cardRenderer == null) yield break;
+
+        // Stage 1: Brief highlight flash
+        yield return StartCoroutine(FlashHighlight());
+        
+        // Stage 2: Gentle scale pulse (if Feel is available)
+        if (completionFeedbackPlayer != null)
+        {
+            completionFeedbackPlayer.PlayFeedbacks();
+        }
+        
+        // Stage 3: Transition to completed color
+        yield return StartCoroutine(TransitionToCompletedColor());
+    }
+
+    IEnumerator FlashHighlight()
+    {
+        // Quick flash to highlight color and back
+        float flashDuration = 0.3f;
+        Color startColor = cardRenderer.material.color;
+        
+        // Flash to highlight
+        float elapsed = 0f;
+        while (elapsed < flashDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0, 1, elapsed / flashDuration);
+            cardRenderer.material.color = Color.Lerp(startColor, highlightColor, t);
+            yield return null;
+        }
+        
+        // Flash back to original
+        elapsed = 0f;
+        while (elapsed < flashDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0, 1, elapsed / flashDuration);
+            cardRenderer.material.color = Color.Lerp(highlightColor, startColor, t);
+            yield return null;
+        }
+    }
+
+    IEnumerator TransitionToCompletedColor()
+    {
+        // Slow transition to completion color
+        float duration = 0.5f;
+        float elapsed = 0f;
+        Color startColor = cardRenderer.material.color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0, 1, elapsed / duration);
+            cardRenderer.material.color = Color.Lerp(startColor, completedColor, t);
+            yield return null;
+        }
+
+        cardRenderer.material.color = completedColor;
+    }
+
+    // Method to reset completion effect (if needed)
+    public void ResetCompletionEffect()
+    {
+        if (cardRenderer != null)
+        {
+            cardRenderer.material.color = originalColor;
+        }
+        isPartOfCompletedSet = false;
     }
 }

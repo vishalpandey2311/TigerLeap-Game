@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine.SceneManagement; // NEW: Add using directive for scene management
 
@@ -12,7 +13,9 @@ public class GameManager : MonoBehaviour
     // Reference to UI elements
     [Header("UI References")]
     public GameObject winPanel;
-    public TextMeshProUGUI winText;
+    public TextMeshProUGUI winText;           // "You Win!" heading
+    public TextMeshProUGUI winAttemptsText;   // NEW: For displaying attempts
+    public TextMeshProUGUI winTimeText;       // NEW: For displaying time taken
     public Button restartButton;
     public TextMeshProUGUI attemptsText;
     public GameObject attemptsPanel;
@@ -28,6 +31,7 @@ public class GameManager : MonoBehaviour
     public AudioClip columnCompletedSound; // Sound to play when a column is completed
     public AudioClip loseGameSound;       // NEW: Sound to play when game is lost
     private AudioSource audioSource;      // Audio source component
+    public AudioClip completionSound; // Add this new sound
 
     // Game state tracking
     private int totalMatchesNeeded = 0;  // Player hand cards * 4 = 12 matches needed
@@ -86,6 +90,10 @@ public class GameManager : MonoBehaviour
     private bool difficultySelected = false;  // Track if difficulty has been selected
     private float selectedGameTime = 60f;     // Will be set based on difficulty choice
 
+
+    // Track completed card sets
+    private Dictionary<int, List<CardController>> cardTypeGroups = new Dictionary<int, List<CardController>>();
+    private HashSet<int> completedCardTypes = new HashSet<int>();
 
     void Awake()
     {
@@ -401,10 +409,56 @@ public class GameManager : MonoBehaviour
             }
         }
         
+        // Track this card in our groups
+        if (!cardTypeGroups.ContainsKey(cardTypeId))
+        {
+            cardTypeGroups[cardTypeId] = new List<CardController>();
+        }
+        cardTypeGroups[cardTypeId].Add(matchedCard);
+
+        // Check if this card type now has 4 matches (complete set)
+        if (cardTypeGroups[cardTypeId].Count >= 4 && !completedCardTypes.Contains(cardTypeId))
+        {
+            completedCardTypes.Add(cardTypeId);
+            StartCoroutine(ApplyCompletionEffectToSet(cardTypeId));
+        }
+        
         // Check if all cards are matched
         if (currentMatches >= totalMatchesNeeded)
         {
             StartCoroutine(ShowWinCelebration());
+        }
+    }
+
+    // Apply completion effect to all 4 cards of the same type
+    IEnumerator ApplyCompletionEffectToSet(int cardTypeId)
+    {
+        if (!cardTypeGroups.ContainsKey(cardTypeId)) yield break;
+
+        Debug.Log($"🎉 Complete set found for card type {cardTypeId}!");
+
+        // Wait a moment for dramatic effect
+        yield return new WaitForSeconds(0.5f);
+
+        // Apply completion effect to all cards of this type
+        foreach (CardController card in cardTypeGroups[cardTypeId])
+        {
+            if (card != null)
+            {
+                card.MarkAsCompletedSet();
+            }
+        }
+
+        // Optional: Play a special sound effect
+        PlayCompletionSound();
+    }
+
+    // Optional: Add a completion sound
+    private void PlayCompletionSound()
+    {
+        if (audioSource != null && completionSound != null)
+        {
+            audioSource.PlayOneShot(completionSound);
         }
     }
 
@@ -449,7 +503,7 @@ public class GameManager : MonoBehaviour
         // Stop the timer
         isTimerRunning = false;
         
-        // Calculate time taken (60 - remaining time)
+        // Calculate time taken (total time - remaining time)
         float timeTaken = totalGameTime - gameTimer;
         
         // Hide pause button when game ends
@@ -457,7 +511,6 @@ public class GameManager : MonoBehaviour
         {
             pauseButton.gameObject.SetActive(false);
         }
-        
         
         // Wait a moment before showing win screen
         yield return new WaitForSeconds(1f);
@@ -502,39 +555,31 @@ public class GameManager : MonoBehaviour
         {
             winPanel.SetActive(true);
             
-            // Set win text to include time taken
+            // Set the main heading (keep this unchanged)
             if (winText != null)
             {
-                int minutes = Mathf.FloorToInt(timeTaken / 60f);
-                int seconds = Mathf.FloorToInt(timeTaken % 60f);
-                winText.text = string.Format("YOU WIN\n");
+                winText.text = "You Win";
             }
             
-            // Optional animations
-            // RectTransform panelRect = winPanel.GetComponent<RectTransform>();
-            // if (panelRect != null)
-            // {
-            //     panelRect.localScale = Vector3.zero;
-                
-            //     // Animate panel scaling up
-            //     float duration = 0.5f;
-            //     float elapsed = 0f;
-                
-            //     while (elapsed < duration)
-            //     {
-            //         elapsed += Time.deltaTime;
-            //         float t = Mathf.SmoothStep(0, 1, elapsed / duration);
-            //         panelRect.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, t);
-            //         yield return null;
-            //     }
-                
-            //     panelRect.localScale = Vector3.one;
-            // }
+            // UPDATED: Set attempts text separately
+            if (winAttemptsText != null)
+            {
+                winAttemptsText.text = $"Attempts: {attempts}";
+            }
             
-            // Optional: play sound effect
-            AudioSource audio = GetComponent<AudioSource>();
-            if (audio != null)
-                audio.Play();
+            // UPDATED: Set time text separately
+            if (winTimeText != null)
+            {
+                int timeInSeconds = Mathf.FloorToInt(timeTaken);
+                winTimeText.text = $"Time: {timeInSeconds} sec";
+            }
+            
+            // Optional: Keep the final time text if you still want it
+            if (finalTimeText != null)
+            {
+                int timeInSeconds = Mathf.FloorToInt(timeTaken);
+                finalTimeText.text = $"Completed in {timeInSeconds} seconds!";
+            }
         }
     }
     
@@ -1157,7 +1202,7 @@ public class GameManager : MonoBehaviour
         {
             instructionPanel.SetActive(false);
         }
-        
+
         // Check if we came from pause menu
         if (isInInstructionMode)
         {
@@ -1166,15 +1211,15 @@ public class GameManager : MonoBehaviour
             {
                 pausePanel.SetActive(true);
             }
-            
+
             // Reset the flag
             isInInstructionMode = false;
-            
+
             // Ensure the game remains paused
             isPaused = true;
             isTimerRunning = false;
             Time.timeScale = 0f;
-            
+
             // Make sure pause button shows resume icon
             if (pauseButton != null)
             {
@@ -1188,7 +1233,7 @@ public class GameManager : MonoBehaviour
                 timerPanel.SetActive(true);
             if (attemptsPanel != null)
                 attemptsPanel.SetActive(true);
-            
+
             // Start the game after instructions are dismissed
             StartGameAfterInstructions();
         }
