@@ -38,6 +38,10 @@ public class MainMenuManager : MonoBehaviour
     public Button mahjongGameButton;
     public Button taichiGameButton;
     
+    [Header("Game Start Panel Elements")]
+    public GameObject gameStartPanel;
+    public Button backFromGameStartButton;
+    
     [Header("Loading Panel Elements")]
     public TextMeshProUGUI loadingText;
     
@@ -108,9 +112,13 @@ public class MainMenuManager : MonoBehaviour
         
         // Setup game choose panel
         if (mahjongGameButton != null)
-            mahjongGameButton.onClick.AddListener(StartMahjongGame);
+            mahjongGameButton.onClick.AddListener(ShowGameStartPanel);
         if (taichiGameButton != null)
             taichiGameButton.onClick.AddListener(StartTaichiGame);
+        
+        // Setup game start panel
+        if (backFromGameStartButton != null)
+            backFromGameStartButton.onClick.AddListener(ShowGameChoosePanel);
         
         // Setup error panel
         if (errorRetryButton != null)
@@ -129,6 +137,7 @@ public class MainMenuManager : MonoBehaviour
         if (loginPanel != null) loginPanel.SetActive(false);
         if (signupPanel != null) signupPanel.SetActive(false);
         if (gameChoosePanel != null) gameChoosePanel.SetActive(false);
+        if (gameStartPanel != null) gameStartPanel.SetActive(false);
         if (loadingPanel != null) loadingPanel.SetActive(false);
         if (errorPanel != null) errorPanel.SetActive(false);
         if (instructionPanel != null) instructionPanel.SetActive(false);
@@ -168,12 +177,31 @@ public class MainMenuManager : MonoBehaviour
     
     public void ShowGameChoosePanel()
     {
+        PlayButtonSound();
         HideAllPanels();
         
         if (gameChoosePanel != null)
         {
             gameChoosePanel.SetActive(true);
             previousPanel = gameChoosePanel;
+        }
+    }
+    
+    public void ShowGameStartPanel()
+    {
+        PlayButtonSound();
+        HideAllPanels();
+        
+        if (gameStartPanel != null)
+        {
+            gameStartPanel.SetActive(true);
+            previousPanel = gameStartPanel;
+            Debug.Log("✅ Game Start Panel shown - Player can now configure and start Mahjong game");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Game Start Panel not assigned. Falling back to direct scene load.");
+            StartMahjongGameDirect();
         }
     }
     
@@ -340,12 +368,21 @@ public class MainMenuManager : MonoBehaviour
     
     #region Game Navigation
     
-    public void StartMahjongGame()
+    // NEW: Method to handle direct Mahjong game loading (fallback)
+    public void StartMahjongGameDirect()
     {
         PlayButtonSound();
         
-        // Load the existing game scene (index 1)
-        SceneManager.LoadScene(1);
+        try
+        {
+            // Load the existing game scene (index 1)
+            SceneManager.LoadScene(1);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load Mahjong game scene: {e.Message}");
+            ShowErrorPanel("Failed to load game. Please try again.");
+        }
     }
     
     public void StartTaichiGame()
@@ -361,6 +398,24 @@ public class MainMenuManager : MonoBehaviour
         {
             Debug.LogError($"Failed to load TaichiGame scene: {e.Message}");
             ShowErrorPanel("TaichiGame scene not found. Please add it to Build Settings.");
+        }
+    }
+    
+    // NEW: Method that can be called from GameStartPanel when game actually starts
+    public void OnGameStartFromPanel()
+    {
+        PlayButtonSound();
+        Debug.Log("✅ Starting Mahjong game from Game Start Panel");
+        
+        try
+        {
+            // Load the game scene (index 1)
+            SceneManager.LoadScene(1);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load game scene: {e.Message}");
+            ShowErrorPanel("Failed to start game. Please try again.");
         }
     }
     
