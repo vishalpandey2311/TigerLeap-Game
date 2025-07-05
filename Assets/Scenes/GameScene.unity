@@ -1624,6 +1624,7 @@ GameObject:
   - component: {fileID: 422515867}
   - component: {fileID: 422515866}
   - component: {fileID: 422515865}
+  - component: {fileID: 422515868}
   m_Layer: 5
   m_Name: IntermediateButton
   m_TagString: Untagged
@@ -1733,6 +1734,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 422515863}
   m_CullTransparentMesh: 1
+--- !u!114 &422515868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422515863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &479861919
 GameObject:
   m_ObjectHideFlags: 0
@@ -2096,6 +2111,7 @@ GameObject:
   - component: {fileID: 611511492}
   - component: {fileID: 611511491}
   - component: {fileID: 611511490}
+  - component: {fileID: 611511494}
   m_Layer: 5
   m_Name: TryAgainButton
   m_TagString: Untagged
@@ -2217,6 +2233,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -184}
   m_SizeDelta: {x: 700, y: 110}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &611511494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 611511489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &633779582
 GameObject:
   m_ObjectHideFlags: 0
@@ -2229,6 +2259,7 @@ GameObject:
   - component: {fileID: 633779586}
   - component: {fileID: 633779585}
   - component: {fileID: 633779584}
+  - component: {fileID: 633779587}
   m_Layer: 5
   m_Name: PauseButton
   m_TagString: Untagged
@@ -2337,6 +2368,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 633779582}
   m_CullTransparentMesh: 1
+--- !u!114 &633779587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 633779582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &681908589
 GameObject:
   m_ObjectHideFlags: 0
@@ -2349,6 +2394,7 @@ GameObject:
   - component: {fileID: 681908593}
   - component: {fileID: 681908592}
   - component: {fileID: 681908591}
+  - component: {fileID: 681908594}
   m_Layer: 5
   m_Name: QuitGame
   m_TagString: Untagged
@@ -2470,6 +2516,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 681908589}
   m_CullTransparentMesh: 1
+--- !u!114 &681908594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681908589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &728232484
 GameObject:
   m_ObjectHideFlags: 0
@@ -2807,6 +2867,7 @@ GameObject:
   - component: {fileID: 937003898}
   - component: {fileID: 937003897}
   - component: {fileID: 937003896}
+  - component: {fileID: 937003899}
   m_Layer: 5
   m_Name: HardButton
   m_TagString: Untagged
@@ -2916,6 +2977,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 937003894}
   m_CullTransparentMesh: 1
+--- !u!114 &937003899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 937003894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &963357330
 GameObject:
   m_ObjectHideFlags: 0
@@ -3065,6 +3140,7 @@ GameObject:
   - component: {fileID: 997838882}
   - component: {fileID: 997838881}
   - component: {fileID: 997838880}
+  - component: {fileID: 997838884}
   m_Layer: 5
   m_Name: CloseButton_GameOver
   m_TagString: Untagged
@@ -3191,6 +3267,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 997838878}
   m_CullTransparentMesh: 1
+--- !u!114 &997838884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 997838878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1000096868
 GameObject:
   m_ObjectHideFlags: 0
@@ -3203,6 +3293,7 @@ GameObject:
   - component: {fileID: 1000096872}
   - component: {fileID: 1000096871}
   - component: {fileID: 1000096870}
+  - component: {fileID: 1000096873}
   m_Layer: 5
   m_Name: PlayAgain
   m_TagString: Untagged
@@ -3324,6 +3415,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000096868}
   m_CullTransparentMesh: 1
+--- !u!114 &1000096873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000096868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1006315823
 GameObject:
   m_ObjectHideFlags: 0
@@ -3473,6 +3578,7 @@ GameObject:
   - component: {fileID: 1037451151}
   - component: {fileID: 1037451150}
   - component: {fileID: 1037451149}
+  - component: {fileID: 1037451153}
   m_Layer: 5
   m_Name: CloseButton_Win
   m_TagString: Untagged
@@ -3599,6 +3705,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1037451147}
   m_CullTransparentMesh: 1
+--- !u!114 &1037451153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1037451147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1061946033
 GameObject:
   m_ObjectHideFlags: 0
@@ -4325,7 +4445,6 @@ RectTransform:
   - {fileID: 1599573371}
   - {fileID: 97991155}
   - {fileID: 1807725128}
-  - {fileID: 1478503243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4346,6 +4465,7 @@ GameObject:
   - component: {fileID: 1303868265}
   - component: {fileID: 1303868264}
   - component: {fileID: 1303868263}
+  - component: {fileID: 1303868267}
   m_Layer: 5
   m_Name: CloseButton_Pause
   m_TagString: Untagged
@@ -4472,6 +4592,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1303868261}
   m_CullTransparentMesh: 1
+--- !u!114 &1303868267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303868261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1327885249
 GameObject:
   m_ObjectHideFlags: 0
@@ -4484,6 +4618,7 @@ GameObject:
   - component: {fileID: 1327885253}
   - component: {fileID: 1327885252}
   - component: {fileID: 1327885251}
+  - component: {fileID: 1327885254}
   m_Layer: 5
   m_Name: QuitGame
   m_TagString: Untagged
@@ -4605,6 +4740,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1327885249}
   m_CullTransparentMesh: 1
+--- !u!114 &1327885254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327885249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1338041973
 GameObject:
   m_ObjectHideFlags: 0
@@ -4684,6 +4833,7 @@ GameObject:
   - component: {fileID: 1418613209}
   - component: {fileID: 1418613208}
   - component: {fileID: 1418613207}
+  - component: {fileID: 1418613210}
   m_Layer: 5
   m_Name: ResumeButton
   m_TagString: Untagged
@@ -4805,6 +4955,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418613205}
   m_CullTransparentMesh: 1
+--- !u!114 &1418613210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418613205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1436930348
 GameObject:
   m_ObjectHideFlags: 0
@@ -5077,277 +5241,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459961292}
   m_CullTransparentMesh: 1
---- !u!1 &1478503242
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1478503243}
-  - component: {fileID: 1478503244}
-  m_Layer: 5
-  m_Name: ClickFeedback
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1478503243
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1478503242}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1215890976}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1478503244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1478503242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da43522623d4704e979466dc7650b65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Feedbacks: []
-  InitializationMode: 2
-  AutoInitialization: 1
-  SafeMode: 3
-  Direction: 0
-  AutoChangeDirectionOnEnd: 0
-  AutoPlayOnStart: 0
-  AutoPlayOnEnable: 0
-  ForceTimescaleMode: 0
-  ForcedTimescaleMode: 1
-  DurationMultiplier: 1
-  TimescaleMultiplier: 1
-  RandomizeDuration: 0
-  RandomDurationMultiplier: {x: 0.5, y: 1.5}
-  DisplayFullDurationDetails: 0
-  PlayerTimescaleMode: 1
-  OnlyPlayIfWithinRange: 0
-  RangeCenter: {fileID: 0}
-  RangeDistance: 5
-  UseRangeFalloff: 0
-  RangeFalloff:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  RemapRangeFalloff: {x: 0, y: 1}
-  IgnoreRangeEvents: 0
-  CooldownDuration: 0
-  InitialDelay: 0
-  CanPlay: 1
-  CanPlayWhileAlreadyPlaying: 1
-  ChanceToPlay: 100
-  FeedbacksIntensity: 1
-  Events:
-    TriggerMMFeedbacksEvents: 0
-    TriggerUnityEvents: 1
-    OnPlay:
-      m_PersistentCalls:
-        m_Calls: []
-    OnPause:
-      m_PersistentCalls:
-        m_Calls: []
-    OnStop:
-      m_PersistentCalls:
-        m_Calls: []
-    OnResume:
-      m_PersistentCalls:
-        m_Calls: []
-    OnChangeDirection:
-      m_PersistentCalls:
-        m_Calls: []
-    OnComplete:
-      m_PersistentCalls:
-        m_Calls: []
-    OnRestoreInitialValues:
-      m_PersistentCalls:
-        m_Calls: []
-    OnSkipToTheEnd:
-      m_PersistentCalls:
-        m_Calls: []
-    OnInitializationComplete:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEnable:
-      m_PersistentCalls:
-        m_Calls: []
-    OnDisable:
-      m_PersistentCalls:
-        m_Calls: []
-  DebugActive: 0
-  InScriptDrivenPause: 0
-  FeedbacksList:
-  - rid: 6486169319222804542
-  KeepPlayModeChanges: 0
-  PerformanceMode: 0
-  RestoreInitialValuesOnDisable: 0
-  StopFeedbacksOnDisable: 0
-  PlayCount: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 6486169319222804542
-      type: {class: MMF_ScaleShake, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
-      data:
-        Active: 1
-        UniqueID: -161879494
-        Label: Scale Shake
-        OriginalLabel: Scale Shake
-        ChannelMode: 0
-        Channel: 0
-        MMChannelDefinition: {fileID: 0}
-        Chance: 100
-        Timing:
-          TimescaleMode: 0
-          ExcludeFromHoldingPauses: 0
-          ContributeToTotalDuration: 1
-          InitialDelay: 0
-          CooldownDuration: 0
-          InterruptsOnStop: 1
-          NumberOfRepeats: 0
-          RepeatForever: 0
-          DelayBetweenRepeats: 1
-          PlayCount: 0
-          LimitPlayCount: 0
-          MaxPlayCount: 3
-          SetPlayCountToZeroOnReset: 0
-          MMFeedbacksDirectionCondition: 0
-          PlayDirection: 0
-          ConstantIntensity: 0
-          UseIntensityInterval: 0
-          IntensityIntervalMin: 0
-          IntensityIntervalMax: 0
-          Sequence: {fileID: 0}
-          TrackID: 0
-          Quantized: 0
-          TargetBPM: 120
-        AutomatedTargetAcquisition:
-          Mode: 0
-          ChildIndex: 0
-        RandomizeOutput: 0
-        RandomMultiplier: {x: 0.8, y: 1}
-        RandomizeDuration: 0
-        RandomDurationMultiplier: {x: 0.5, y: 2}
-        UseRange: 0
-        RangeDistance: 5
-        UseRangeFalloff: 0
-        RangeFalloff:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        RemapRangeFalloff: {x: 0, y: 1}
-        AutomaticShakerSetupButton:
-          ButtonText: 
-        Owner: {fileID: 1478503244}
-        DebugActive: 0
-        TargetShaker: {fileID: 0}
-        Duration: 0.5
-        ResetShakerValuesAfterShake: 1
-        ResetTargetValuesAfterShake: 1
-        ShakeSpeed: 20
-        ShakeRange: 0.5
-        ShakeMainDirection: {x: 0, y: 1, z: 0}
-        RandomizeDirection: 0
-        ShakeAltDirection: {x: 0, y: 1, z: 0}
-        RandomizeDirectionOnPlay: 0
-        AddDirectionalNoise: 1
-        DirectionalNoiseStrengthMin: {x: 0.25, y: 0.25, z: 0.25}
-        DirectionalNoiseStrengthMax: {x: 0.25, y: 0.25, z: 0.25}
-        RandomnessSeed: {x: 0, y: 0, z: 0}
-        RandomizeSeedOnShake: 1
-        UseAttenuation: 1
-        AttenuationCurve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.5
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
 --- !u!1 &1548758702
 GameObject:
   m_ObjectHideFlags: 0
@@ -5471,6 +5364,7 @@ GameObject:
   - component: {fileID: 1631082222}
   - component: {fileID: 1631082221}
   - component: {fileID: 1631082220}
+  - component: {fileID: 1631082223}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -5592,6 +5486,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1631082218}
   m_CullTransparentMesh: 1
+--- !u!114 &1631082223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631082218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1666161129
 GameObject:
   m_ObjectHideFlags: 0
@@ -6044,6 +5952,7 @@ GameObject:
   - component: {fileID: 1843735509}
   - component: {fileID: 1843735508}
   - component: {fileID: 1843735507}
+  - component: {fileID: 1843735511}
   m_Layer: 5
   m_Name: CloseButton_Instruction
   m_TagString: Untagged
@@ -6182,6 +6091,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1843735505}
   m_CullTransparentMesh: 1
+--- !u!114 &1843735511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1843735505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1848096563
 GameObject:
   m_ObjectHideFlags: 0
@@ -6346,6 +6269,7 @@ GameObject:
   - component: {fileID: 1854835795}
   - component: {fileID: 1854835794}
   - component: {fileID: 1854835793}
+  - component: {fileID: 1854835796}
   m_Layer: 5
   m_Name: EasyButton
   m_TagString: Untagged
@@ -6455,6 +6379,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1854835791}
   m_CullTransparentMesh: 1
+--- !u!114 &1854835796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854835791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &1883308445
 GameObject:
   m_ObjectHideFlags: 0
@@ -6887,6 +6825,7 @@ GameObject:
   - component: {fileID: 2045009433}
   - component: {fileID: 2045009432}
   - component: {fileID: 2045009431}
+  - component: {fileID: 2045009435}
   m_Layer: 5
   m_Name: InfoButton
   m_TagString: Untagged
@@ -6995,6 +6934,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 77}
   m_SizeDelta: {x: 180, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2045009435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2045009430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &2067402501
 GameObject:
   m_ObjectHideFlags: 0
@@ -7007,6 +6960,7 @@ GameObject:
   - component: {fileID: 2067402505}
   - component: {fileID: 2067402504}
   - component: {fileID: 2067402503}
+  - component: {fileID: 2067402506}
   m_Layer: 5
   m_Name: GotItButton
   m_TagString: Untagged
@@ -7128,6 +7082,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2067402501}
   m_CullTransparentMesh: 1
+--- !u!114 &2067402506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2067402501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7b43996ed110042bb5da137dbf1023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customButtonSound: {fileID: 8300000, guid: fd525a917cf439e4e98b5cfae6e57c16, type: 3}
+  volume: 0.7
 --- !u!1 &2095711139
 GameObject:
   m_ObjectHideFlags: 0
@@ -7185,7 +7153,7 @@ MonoBehaviour:
   masterVolume: 0.7
   isMuted: 0
   isGlobalSoundEnabled: 1
-  buttonClickSound: {fileID: 8300000, guid: 58424e4a21dd2944e81645474f77c793, type: 3}
+  buttonClickSound: {fileID: 0}
 --- !u!4 &2095711141
 Transform:
   m_ObjectHideFlags: 0
