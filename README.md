@@ -1,4 +1,4 @@
-# TigerLeap Card Memory GameAdd commentMore actions
+# TigerLeap Card Memory Game
 
 A challenging 3D memory card matching game built with Unity, where players must find pairs of cards matching their hand cards within time limits. Features advanced audio management, Feel feedback system integration, and polished UI/UX design.
 
