@@ -13,7 +13,7 @@ public class PTSpawnManager : MonoBehaviour
     public float spawnInterval = 2f;
     
     [Tooltip("Whether to start spawning automatically")]
-    public bool autoStart = false; // Changed to false for menu control
+    public bool autoStart = false;
     
     [Header("Spawn Positions")]
     [Tooltip("Predefined spawn positions for the cubes")]
@@ -25,6 +25,10 @@ public class PTSpawnManager : MonoBehaviour
         new Vector3(4f, 0.5f, 200f)
     };
     
+    [Header("Material Assignment")]
+    [Tooltip("Apply button materials to spawned cubes")]
+    public bool applyButtonMaterials = true;
+    
     [Header("Spawning Control")]
     [Tooltip("Enable/disable spawning at runtime")]
     public bool isSpawning = false;
@@ -35,13 +39,25 @@ public class PTSpawnManager : MonoBehaviour
     
     private Coroutine spawnCoroutine;
     
+    // Singleton for easy access
+    public static PTSpawnManager Instance { get; private set; }
+    
+    void Awake()
+    {
+        // Singleton setup
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    
     void Start()
     {
-        // Remove auto-start - let PTMenuManager control this
-        // if (autoStart)
-        // {
-        //     StartSpawning();
-        // }
+        // Menu manager controls spawning
     }
     
     /// <summary>
@@ -110,6 +126,12 @@ public class PTSpawnManager : MonoBehaviour
         // Instantiate the cube
         GameObject spawnedCube = Instantiate(cubePrefab, spawnPosition, Quaternion.identity);
         
+        // Apply button material if enabled
+        if (applyButtonMaterials && ButtonManager.Instance != null)
+        {
+            ButtonManager.Instance.ApplyMaterialToMovingCube(spawnedCube, spawnPosition);
+        }
+        
         if (showDebug)
         {
             Debug.Log($"PTSpawnManager: Spawned cube at position {spawnPosition} (index: {randomIndex})");
@@ -155,11 +177,17 @@ public class PTSpawnManager : MonoBehaviour
         // Draw spawn positions in scene view
         if (spawnPositions != null)
         {
-            Gizmos.color = Color.yellow;
-            foreach (Vector3 position in spawnPositions)
+            // Use different colors for each spawn position
+            Color[] colors = { Color.red, Color.green, Color.blue, Color.yellow };
+            
+            for (int i = 0; i < spawnPositions.Length; i++)
             {
-                Gizmos.DrawWireCube(position, Vector3.one);
-                Gizmos.DrawWireSphere(position, 0.5f);
+                Gizmos.color = colors[i % colors.Length];
+                Gizmos.DrawWireCube(spawnPositions[i], Vector3.one);
+                Gizmos.DrawWireSphere(spawnPositions[i], 0.5f);
+                
+                // Draw line to show movement path
+                Gizmos.DrawLine(spawnPositions[i], new Vector3(spawnPositions[i].x, spawnPositions[i].y, -7f));
             }
         }
     }
