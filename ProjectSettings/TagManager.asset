@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlayerHand
   - MovingCube
+  - DecorativeGate
   layers:
   - Default
   - TransparentFX

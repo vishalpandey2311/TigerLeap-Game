@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class CloseButton : MonoBehaviour
 {
@@ -8,18 +9,22 @@ public class CloseButton : MonoBehaviour
     public CloseButtonType buttonType;       // Type of close action
     public bool playSound = true;           // Play button click sound
     
+    [Header("Delay Settings")]
+    public float closeDelay = 0.6f;         // Delay before closing (in seconds)
+    
     [Header("Optional Custom Actions")]
     public UnityEngine.Events.UnityEvent customCloseAction; // Custom actions on close
     
     private Button button;
-    
+
     public enum CloseButtonType
     {
         SimpleClose,        // Just close the panel
         ResumeGame,         // Close and resume game (for pause panel)
         RestartGame,        // Close and restart game
         LoadMainMenu,       // Close and go to main menu
-        CustomAction        // Use custom action
+        CustomAction,       // Use custom action
+        
     }
     
     void Start()
@@ -39,32 +44,52 @@ public class CloseButton : MonoBehaviour
     
     public void OnCloseButtonClicked()
     {
-        // Play button sound
+        Debug.Log("Close button clicked!");
+        
+        // Play button sound immediately
         if (playSound)
         {
             PlayButtonSound();
         }
         
+        // Start the delayed close coroutine
+        StartCoroutine(DelayedClose());
+    }
+    
+    private IEnumerator DelayedClose()
+    {
+        Debug.Log($"Starting delay of {closeDelay} seconds...");
+        
+        // Wait for the specified delay (using unscaled time since game is paused)
+        yield return new WaitForSecondsRealtime(closeDelay);
+        
+        Debug.Log($"Delay finished. Button type: {buttonType}");
+        
         // Perform action based on button type
         switch (buttonType)
         {
             case CloseButtonType.SimpleClose:
+                Debug.Log("Executing SimpleClose");
                 SimpleClosePanel();
                 break;
                 
             case CloseButtonType.ResumeGame:
+                Debug.Log("Executing ResumeGame");
                 ResumeGameAndClose();
                 break;
                 
             case CloseButtonType.RestartGame:
+                Debug.Log("Executing RestartGame");
                 RestartGame();
                 break;
                 
             case CloseButtonType.LoadMainMenu:
+                Debug.Log("Executing LoadMainMenu");
                 LoadMainMenu();
                 break;
                 
             case CloseButtonType.CustomAction:
+                Debug.Log("Executing CustomAction");
                 ExecuteCustomAction();
                 break;
         }
@@ -81,14 +106,26 @@ public class CloseButton : MonoBehaviour
     
     private void ResumeGameAndClose()
     {
+        Debug.Log("ResumeGameAndClose called");
+        
         if (GameManager.Instance != null)
         {
+            Debug.Log("Calling GameManager.ResumeGame()");
             GameManager.Instance.ResumeGame();
+        }
+        else
+        {
+            Debug.LogError("GameManager.Instance is null!");
         }
         
         if (targetPanel != null)
         {
+            Debug.Log($"Closing panel: {targetPanel.name}");
             targetPanel.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("Target panel is null!");
         }
     }
     
@@ -118,6 +155,8 @@ public class CloseButton : MonoBehaviour
             targetPanel.SetActive(false);
         }
     }
+    
+    
     
     private void PlayButtonSound()
     {

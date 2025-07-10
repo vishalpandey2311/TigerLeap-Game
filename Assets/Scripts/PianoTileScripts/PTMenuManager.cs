@@ -33,6 +33,10 @@ public class PTMenuManager : MonoBehaviour
     [Tooltip("Show debug information")]
     public bool showDebug = false;
     
+    [Header("Gate System")]
+    [Tooltip("Reference to PTGateSpawnManager")]
+    public PTGateSpawnManager gateSpawnManager;
+    
     private AudioSource audioSource;
     private bool gameStarted = false;
     
@@ -179,6 +183,12 @@ public class PTMenuManager : MonoBehaviour
             spawnManager.StartSpawning();
         }
         
+        // Start spawning gates
+        if (gateSpawnManager != null)
+        {
+            gateSpawnManager.StartSpawning();
+        }
+        
         // Enable button controls (they should already be active)
         if (buttonManager != null && showDebug)
         {
@@ -241,8 +251,15 @@ public class PTMenuManager : MonoBehaviour
             spawnManager.StopSpawning();
         }
         
-        // Destroy any remaining cubes
+        // Stop gate spawning
+        if (gateSpawnManager != null)
+        {
+            gateSpawnManager.StopSpawning();
+        }
+        
+        // Destroy any remaining cubes and gates
         DestroyRemainingCubes();
+        DestroyRemainingGates();
         
         // Show menu
         ShowMenu();
@@ -262,6 +279,29 @@ public class PTMenuManager : MonoBehaviour
         if (showDebug && movingCubes.Length > 0)
         {
             Debug.Log($"PTMenuManager: Destroyed {movingCubes.Length} remaining cubes");
+        }
+    }
+    
+    /// <summary>
+    /// Destroys any remaining decorative gates
+    /// </summary>
+    private void DestroyRemainingGates()
+    {
+        if (gateSpawnManager != null)
+        {
+            gateSpawnManager.DestroyAllGates();
+        }
+        
+        // Also clean up any gates that might not be tracked
+        GameObject[] decorativeGates = GameObject.FindGameObjectsWithTag("DecorativeGate");
+        foreach (GameObject gate in decorativeGates)
+        {
+            Destroy(gate);
+        }
+        
+        if (showDebug && decorativeGates.Length > 0)
+        {
+            Debug.Log($"PTMenuManager: Destroyed {decorativeGates.Length} remaining gates");
         }
     }
     

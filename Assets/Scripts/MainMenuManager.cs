@@ -87,8 +87,8 @@ public class MainMenuManager : MonoBehaviour
 
     void Start()
     {
-        SetupAuthentication();
-        SetupInfoButton();
+        SetupAuthentication(); // Keep this but it will only hide panels now
+        SetupInfoButton(); // Keep this but it will only setup panel state
         SetupButtonAudio();
         SetupSoundToggle();
         InitializeBackgroundMusic();
@@ -160,64 +160,8 @@ public class MainMenuManager : MonoBehaviour
 
     void SetupAuthentication()
     {
-        // Setup login panel
-        if (loginSubmitButton != null)
-            loginSubmitButton.onClick.AddListener(OnLoginSubmit);
-        if (loginToSignupButton != null)
-            loginToSignupButton.onClick.AddListener(ShowSignupPanel);
-        if (forgotPasswordButton != null) // NEW
-            forgotPasswordButton.onClick.AddListener(ShowEmailCheckPanel);
-
-        // Setup signup panel
-        if (signupSubmitButton != null)
-            signupSubmitButton.onClick.AddListener(OnSignupSubmit);
-        if (signupToLoginButton != null)
-            signupToLoginButton.onClick.AddListener(ShowLoginPanel);
-
-        // NEW: Setup email check panel
-        if (emailVerifyButton != null)
-            emailVerifyButton.onClick.AddListener(OnEmailVerifySubmit);
-        if (backFromEmailCheckButton != null)
-            backFromEmailCheckButton.onClick.AddListener(ShowLoginPanel);
-
-        // NEW: Setup reset password panel
-        if (confirmPasswordButton != null)
-            confirmPasswordButton.onClick.AddListener(OnConfirmPasswordSubmit);
-        if (backFromResetPasswordButton != null)
-            backFromResetPasswordButton.onClick.AddListener(ShowLoginPanel);
-
-        // Setup game choose panel
-        if (mahjongGameButton != null)
-        {
-            mahjongGameButton.onClick.AddListener(() =>
-            {
-                if (FirebaseManager.Instance != null)
-                    FirebaseManager.Instance.SelectMahjongGame();
-                ShowGameStartPanel();
-            });
-        }
-        if (taichiGameButton != null)
-        {
-            taichiGameButton.onClick.AddListener(() =>
-            {
-                if (FirebaseManager.Instance != null)
-                    FirebaseManager.Instance.SelectTaichiGame();
-                StartTaichiGame();
-            });
-        }
-
-        // Setup game start panel
-        if (backFromGameStartButton != null)
-            backFromGameStartButton.onClick.AddListener(ShowGameChoosePanel);
-
-        // Setup error panel
-        if (errorRetryButton != null)
-            errorRetryButton.onClick.AddListener(OnErrorRetry);
-
-        // Setup logout button
-        if (logoutButton != null)
-            logoutButton.onClick.AddListener(OnLogoutButtonClick);
-
+        // Remove all button onClick listeners - they will be handled via Inspector OnClick events
+        
         // Hide all panels initially
         HideAllPanels();
     }
@@ -751,16 +695,8 @@ public class MainMenuManager : MonoBehaviour
 
     void SetupInfoButton()
     {
-        if (infoButton != null)
-        {
-            infoButton.onClick.AddListener(ShowInstructions);
-        }
-
-        if (gotItButton != null)
-        {
-            gotItButton.onClick.AddListener(HideInstructions);
-        }
-
+        // Remove button listeners - they will be handled via Inspector OnClick events
+        
         if (instructionPanel != null)
         {
             instructionPanel.SetActive(false);
@@ -863,6 +799,56 @@ public class MainMenuManager : MonoBehaviour
             buttonAudioSource.PlayOneShot(buttonClickSound);
         }
     }
+
+    #endregion
+
+    #region Public Methods for Inspector OnClick Events
+
+    // Authentication Methods
+    public void OnLoginSubmitClick() => OnLoginSubmit();
+    public void OnSignupSubmitClick() => OnSignupSubmit();
+    public void OnEmailVerifySubmitClick() => OnEmailVerifySubmit();
+    public void OnConfirmPasswordSubmitClick() => OnConfirmPasswordSubmit();
+
+    // Panel Navigation Methods
+    public void ShowLoginPanelClick() => ShowLoginPanel();
+    public void ShowSignupPanelClick() => ShowSignupPanel();
+    public void ShowEmailCheckPanelClick() => ShowEmailCheckPanel();
+    public void ShowGameChoosePanelClick() => ShowGameChoosePanel();
+    public void ShowGameStartPanelClick() => ShowGameStartPanel();
+
+    // Game Selection Methods
+    public void SelectMahjongGameClick()
+    {
+        PlayButtonSound();
+        if (FirebaseManager.Instance != null)
+            FirebaseManager.Instance.SelectMahjongGame();
+        ShowGameStartPanel();
+    }
+
+    public void SelectTaichiGameClick()
+    {
+        PlayButtonSound();
+        if (FirebaseManager.Instance != null)
+            FirebaseManager.Instance.SelectTaichiGame();
+        StartTaichiGame();
+    }
+
+    // Instruction Methods
+    public void ShowInstructionsClick() => ShowInstructions();
+    public void HideInstructionsClick() => HideInstructions();
+
+    // Error Handling
+    public void OnErrorRetryClick() => OnErrorRetry();
+
+    // Logout
+    public void OnLogoutButtonClickEvent() => OnLogoutButtonClick();
+
+    // Game Start
+    public void OnGameStartFromPanelClick() => OnGameStartFromPanel();
+
+    // Quit Game
+    public void QuitGameClick() => QuitGame();
 
     #endregion
 }
