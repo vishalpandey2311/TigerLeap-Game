@@ -83,13 +83,15 @@ public class GameManager : MonoBehaviour
     public bool gameStarted = false;        // NEW: Track if game has actually started
 
     [Header("Difficulty Selection")]
-    public GameObject difficultyPanel;      // Reference to difficulty selection panel
-    public Button easyButton;              // Easy difficulty button (5 minutes)
-    public Button intermediateButton;      // Intermediate difficulty button (3 minutes)
-    public Button hardButton;              // Hard difficulty button (1 minute)
-    private bool difficultySelected = false;  // Track if difficulty has been selected
-    private float selectedGameTime = 60f;     // Will be set based on difficulty choice
-
+    public GameObject difficultyPanel;
+    public Button easyButton;
+    public Button intermediateButton;
+    public Button hardButton;
+    private bool difficultySelected = false;
+    private float selectedGameTime = 60f;
+    
+    // NEW: Add difficulty type tracking
+    private string selectedDifficulty = ""; // Will be "Easy", "Medium", or "Hard"
 
     // Track completed card sets
     private Dictionary<int, List<CardController>> cardTypeGroups = new Dictionary<int, List<CardController>>();
@@ -144,7 +146,10 @@ public class GameManager : MonoBehaviour
         SetupInstructionPanel();
         
         // NEW: Show difficulty selection first
-        ShowDifficultySelection();
+        if (difficultyPanel != null)
+        {
+            difficultyPanel.SetActive(true);
+        }
     }
     
     void Update()
@@ -498,6 +503,7 @@ public class GameManager : MonoBehaviour
         return new Vector3(0, 3, 0);
     }
     
+    // UPDATE: Modify ShowWinCelebration to save score
     IEnumerator ShowWinCelebration()
     {
         // Stop the timer
@@ -505,6 +511,9 @@ public class GameManager : MonoBehaviour
         
         // Calculate time taken (total time - remaining time)
         float timeTaken = totalGameTime - gameTimer;
+        
+        // NEW: Save score to database
+        yield return StartCoroutine(SaveScoreToDatabase());
         
         // Hide pause button when game ends
         if (pauseButton != null)
@@ -986,6 +995,9 @@ public class GameManager : MonoBehaviour
         // Stop the timer
         isTimerRunning = false;
         
+        // NEW: Save score to database (even on game over)
+        yield return StartCoroutine(SaveScoreToDatabase());
+        
         // Hide pause button when game ends
         if (pauseButton != null)
         {
@@ -1073,59 +1085,67 @@ public class GameManager : MonoBehaviour
         UpdateTimerUI();
     }
 
-    // Setup difficulty selection buttons
+    // UPDATED: Remove the automatic button setup and create separate public methods
+    
+    // Setup difficulty selection buttons - REMOVED automatic listener setup
     private void SetupDifficultyButtons()
     {
-        if (easyButton != null)
-        {
-            easyButton.onClick.AddListener(() => SelectDifficulty(300f)); // 5 minutes = 300 seconds
-        }
+        // Remove all the automatic onClick.AddListener calls
+        // Now these will be set manually in the Inspector
         
-        if (intermediateButton != null)
-        {
-            intermediateButton.onClick.AddListener(() => SelectDifficulty(180f)); // 3 minutes = 180 seconds
-        }
-        
-        if (hardButton != null)
-        {
-            hardButton.onClick.AddListener(() => SelectDifficulty(60f)); // 1 minute = 60 seconds
-        }
+        // Just ensure buttons exist
+        if (easyButton == null)
+            Debug.LogWarning("Easy button not assigned in Inspector");
+        if (intermediateButton == null)
+            Debug.LogWarning("Intermediate button not assigned in Inspector");
+        if (hardButton == null)
+            Debug.LogWarning("Hard button not assigned in Inspector");
     }
 
-    // Show difficulty selection panel
-    private void ShowDifficultySelection()
+    // NEW: Individual public methods for each difficulty button
+    
+    /// <summary>
+    /// Call this method from Easy Button's OnClick event in Inspector
+    /// </summary>
+    public void OnEasyButtonClicked()
     {
-        if (difficultyPanel != null)
-        {
-            difficultyPanel.SetActive(true);
-        }
-        
-        // Hide other UI elements until difficulty is selected
-        if (timerPanel != null)
-            timerPanel.SetActive(false);
-        if (attemptsPanel != null)
-            attemptsPanel.SetActive(false);
-        if (pauseButton != null)
-            pauseButton.gameObject.SetActive(false);
+        SelectDifficulty(300f, "Easy"); // 5 minutes = 300 seconds
+    }
+    
+    /// <summary>
+    /// Call this method from Medium Button's OnClick event in Inspector
+    /// </summary>
+    public void OnMediumButtonClicked()
+    {
+        SelectDifficulty(180f, "Medium"); // 3 minutes = 180 seconds
+    }
+    
+    /// <summary>
+    /// Call this method from Hard Button's OnClick event in Inspector
+    /// </summary>
+    public void OnHardButtonClicked()
+    {
+        SelectDifficulty(60f, "Hard"); // 1 minute = 60 seconds
     }
 
-    // Called when player selects a difficulty
-    public void SelectDifficulty(float timeInSeconds)
+    // Keep the existing SelectDifficulty method as private (since it's only called internally now)
+    private void SelectDifficulty(float timeInSeconds, string difficultyType)
     {
-        Debug.Log($"Difficulty selected: {timeInSeconds} seconds");
+        Debug.Log($"Difficulty selected: {difficultyType} ({timeInSeconds} seconds)");
         
         // Play button sound
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayButtonClick();
     
-        // Store the selected time
+        // Store the selected time and difficulty type
         selectedGameTime = timeInSeconds;
         totalGameTime = timeInSeconds;
+        selectedDifficulty = difficultyType;
     
         // Mark difficulty as selected
         difficultySelected = true;
     
-        Debug.Log($"Game started flag: {gameStarted}");
+        Debug.Log($"Selected difficulty: {selectedDifficulty}");
     
         // Hide difficulty panel
         if (difficultyPanel != null)
@@ -1236,6 +1256,34 @@ public class GameManager : MonoBehaviour
 
             // Start the game after instructions are dismissed
             StartGameAfterInstructions();
+        }
+    }
+
+    // NEW: Method to save score to database
+    private IEnumerator SaveScoreToDatabase()
+    {
+        if (FirebaseManager.Instance != null && !string.IsNullOrEmpty(selectedDifficulty))
+        {
+            Debug.Log($"Saving {selectedDifficulty} score: {attempts}");
+            
+            // Start the async operation
+            var saveTask = FirebaseManager.Instance.UpdateGameScore(selectedDifficulty, attempts);
+            
+            // Wait for completion
+            yield return new WaitUntil(() => saveTask.IsCompleted);
+            
+            if (saveTask.Exception != null)
+            {
+                Debug.LogError($"Failed to save score: {saveTask.Exception}");
+            }
+            else
+            {
+                Debug.Log($"✅ Score saved successfully: {selectedDifficulty} = {attempts}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Cannot save score - FirebaseManager not found or difficulty not selected");
         }
     }
 }

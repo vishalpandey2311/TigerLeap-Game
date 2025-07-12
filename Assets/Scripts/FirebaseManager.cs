@@ -581,4 +581,88 @@ public class FirebaseManager : MonoBehaviour
             Debug.LogError($"❌ Password update error: {errorMessage}");
         }
     }
+
+    // NEW: Update game score based on difficulty
+    public async Task UpdateGameScore(string difficulty, int score)
+    {
+        if (!isFirebaseInitialized)
+        {
+            Debug.LogError("❌ Firebase not initialized");
+            return;
+        }
+        
+        var user = GetCurrentUser();
+        if (user == null && !HasValidSession())
+        {
+            Debug.LogError("❌ No user logged in");
+            return;
+        }
+
+        try
+        {
+            // Get user ID (from Firebase user or session)
+            string userId;
+            if (user != null)
+            {
+                userId = user.UserId;
+            }
+            else
+            {
+                // If we're using session, we need to get user ID differently
+                // For now, we'll use the email as identifier
+                string userEmail = GetCurrentUserEmail();
+                userId = userEmail.Replace(".", "_").Replace("@", "_"); // Simple conversion
+            }
+
+            // Determine which collection to update based on current game selection
+            string gameCollection = string.IsNullOrEmpty(currentGameSelection) ? "GM1" : currentGameSelection;
+            
+            var gameRef = db.Collection("users").Document(userId).Collection(gameCollection).Document("scores");
+            
+            // Determine which field to update based on difficulty
+            string scoreField = "";
+            switch (difficulty.ToLower())
+            {
+                case "easy":
+                    scoreField = "EasyScore";
+                    break;
+                case "medium":
+                    scoreField = "MediumScore";
+                    break;
+                case "hard":
+                    scoreField = "HardScore";
+                    break;
+                default:
+                    Debug.LogError($"❌ Invalid difficulty: {difficulty}");
+                    return;
+            }
+
+            // Get current score to compare
+            var scoreDoc = await gameRef.GetSnapshotAsync();
+            int currentScore = 0;
+            
+            if (scoreDoc.Exists && scoreDoc.ContainsField(scoreField))
+            {
+                currentScore = scoreDoc.GetValue<int>(scoreField);
+            }
+
+            // Update score only if new score is better (lower attempts = better score)
+            if (currentScore == 0 || score < currentScore)
+            {
+                await gameRef.UpdateAsync(scoreField, score);
+                await gameRef.UpdateAsync("lastPlayed", Timestamp.GetCurrentTimestamp());
+                
+                Debug.Log($"✅ {difficulty} score updated: {score} (Previous: {currentScore}) in {gameCollection}");
+            }
+            else
+            {
+                Debug.Log($"ℹ️ Score not updated. Current best: {currentScore}, New score: {score}");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"❌ Error updating game score: {e.Message}");
+            throw; // Re-throw so the caller can handle it
+        }
+    }
 }
