@@ -74,6 +74,9 @@ public class MainMenuManager : MonoBehaviour
     public Sprite soundOnSprite;
     public Sprite soundOffSprite;
 
+    [Header("Language")]
+    public Button languageButton;
+
     [Header("Logout")]
     public Button logoutButton;
 

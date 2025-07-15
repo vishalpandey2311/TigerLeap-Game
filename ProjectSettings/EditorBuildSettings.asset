@@ -15,5 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/TaichiGame.unity
     guid: 9da31c81f1f6a0f41888d353e90b8c2f
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: c98293bbb74e196468c0fe2955cb74f2, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.localization.settings: {fileID: 11400000, guid: d5c5576c37699d64298fe3b98cb62c21, type: 2}
   m_UseUCBPForAssetBundles: 0

@@ -573,14 +573,14 @@ public class GameManager : MonoBehaviour
             // UPDATED: Set attempts text separately
             if (winAttemptsText != null)
             {
-                winAttemptsText.text = $"Attempts: {attempts}";
+                winAttemptsText.text = $"{attempts}";
             }
             
             // UPDATED: Set time text separately
             if (winTimeText != null)
             {
                 int timeInSeconds = Mathf.FloorToInt(timeTaken);
-                winTimeText.text = $"Time: {timeInSeconds} sec";
+                winTimeText.text = $"{timeInSeconds}";
             }
             
             // Optional: Keep the final time text if you still want it
@@ -647,7 +647,7 @@ public class GameManager : MonoBehaviour
         
         while (countdownValue > 0)
         {
-            countdownText.text = "Memorize the cards: " + countdownValue;
+            countdownText.text = "" + countdownValue;
             yield return new WaitForSeconds(1f);
             countdownValue--;
         }
@@ -1048,8 +1048,8 @@ public class GameManager : MonoBehaviour
             // Set game over text
             if (gameOverText != null)
             {
-                gameOverText.text = "Attempts: " + attempts + 
-                                   "\nMatches: " + currentMatches + "/" + totalMatchesNeeded;
+                gameOverText.text = "" + attempts + 
+                                   "\n" + currentMatches + "/" + totalMatchesNeeded;
             }
         }
     }
