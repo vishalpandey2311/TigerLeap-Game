@@ -96,6 +96,9 @@ public class MainMenuManager : MonoBehaviour
         SetupSoundToggle();
         InitializeBackgroundMusic();
 
+        // Ensure LanguageManager is properly working when returning from other scenes
+        RefreshLanguageManager();
+
         // Check session status and show appropriate panel
         CheckSessionAndShowPanel();
     }
@@ -689,6 +692,35 @@ public class MainMenuManager : MonoBehaviour
         catch
         {
             return false;
+        }
+    }
+    
+    /// <summary>
+    /// Ensures LanguageManager is working properly when returning from other scenes
+    /// </summary>
+    private void RefreshLanguageManager()
+    {
+        // Always ensure the LanguageManager instance exists
+        LanguageManager languageManager = LanguageManager.EnsureInstance();
+        
+        if (languageManager != null)
+        {
+            Debug.Log("MainMenuManager: LanguageManager ensured to exist, refreshing language");
+            
+            // Check if it's properly initialized
+            if (languageManager.IsInitialized())
+            {
+                languageManager.RefreshCurrentLanguage();
+            }
+            else
+            {
+                Debug.Log("MainMenuManager: LanguageManager not fully initialized, forcing reinitialize");
+                languageManager.ForceReinitialize();
+            }
+        }
+        else
+        {
+            Debug.LogError("MainMenuManager: Failed to ensure LanguageManager instance! Language functionality will not work.");
         }
     }
 

@@ -15,6 +15,9 @@ public class PTMenuManager : MonoBehaviour
     [Tooltip("Quit game button")]
     public Button quitButton;
     
+    [Tooltip("Cross/X resume button for paused game")]
+    public Button crossResumeButton;
+    
     [Header("Game Components")]
     [Tooltip("Reference to PTSpawnManager")]
     public PTSpawnManager spawnManager;
@@ -63,6 +66,13 @@ public class PTMenuManager : MonoBehaviour
             quitButton.onClick.AddListener(OnQuitButtonClicked);
         }
         
+        if (crossResumeButton != null)
+        {
+            crossResumeButton.onClick.AddListener(OnCrossResumeButtonClicked);
+            // Hide cross resume button initially (game hasn't started yet)
+            crossResumeButton.gameObject.SetActive(false);
+        }
+        
         // Ensure game components are stopped initially
         if (spawnManager != null)
         {
@@ -98,6 +108,12 @@ public class PTMenuManager : MonoBehaviour
         {
             ptMenuPanel.SetActive(true);
             
+            // Show cross resume button only if game has started (paused state)
+            if (crossResumeButton != null && gameStarted)
+            {
+                crossResumeButton.gameObject.SetActive(true);
+            }
+            
             // Pause the game time while in menu
             Time.timeScale = 0f;
             
@@ -116,6 +132,12 @@ public class PTMenuManager : MonoBehaviour
         if (ptMenuPanel != null)
         {
             ptMenuPanel.SetActive(false);
+            
+            // Hide cross resume button when menu is hidden
+            if (crossResumeButton != null)
+            {
+                crossResumeButton.gameObject.SetActive(false);
+            }
             
             // Resume game time
             Time.timeScale = 1f;
@@ -151,10 +173,25 @@ public class PTMenuManager : MonoBehaviour
         
         if (showDebug)
         {
-            Debug.Log("PTMenuManager: Quit button clicked - Quitting game");
+            Debug.Log("PTMenuManager: Quit button clicked - Loading MainMenu");
         }
         
-        QuitGame();
+        LoadMainMenu();
+    }
+    
+    /// <summary>
+    /// Called when Cross Resume button is clicked
+    /// </summary>
+    public void OnCrossResumeButtonClicked()
+    {
+        PlayButtonSound();
+        
+        if (showDebug)
+        {
+            Debug.Log("PTMenuManager: Cross Resume button clicked - Resuming game");
+        }
+        
+        ResumeGame();
     }
     
     /// <summary>
@@ -172,6 +209,12 @@ public class PTMenuManager : MonoBehaviour
         else if (PTScoreManager.Instance != null)
         {
             PTScoreManager.Instance.ResetScore();
+        }
+        
+        // Hide the cross resume button when starting the game
+        if (crossResumeButton != null)
+        {
+            crossResumeButton.gameObject.SetActive(false);
         }
         
         // Hide the menu
@@ -202,13 +245,13 @@ public class PTMenuManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Quits the game
+    /// Loads the MainMenu scene
     /// </summary>
-    private void QuitGame()
+    private void LoadMainMenu()
     {
         if (showDebug)
         {
-            Debug.Log("PTMenuManager: Quitting game...");
+            Debug.Log("PTMenuManager: Loading MainMenu scene...");
         }
         
         // Stop any ongoing game processes
@@ -217,14 +260,56 @@ public class PTMenuManager : MonoBehaviour
             spawnManager.StopSpawning();
         }
         
-        // Add any cleanup here
+        if (gateSpawnManager != null)
+        {
+            gateSpawnManager.StopSpawning();
+        }
         
-        // Quit the application
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        // Destroy remaining objects
+        DestroyRemainingCubes();
+        DestroyRemainingGates();
+        
+        // Reset time scale
+        Time.timeScale = 1f;
+        
+        // Load MainMenu scene
+        try
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"PTMenuManager: Failed to load MainMenu scene: {e.Message}");
+            // Fallback: try loading by index
+            SceneManager.LoadScene(0);
+        }
+    }
+    
+    /// <summary>
+    /// Resumes the game (hides menu and continues gameplay)
+    /// </summary>
+    private void ResumeGame()
+    {
+        if (showDebug)
+        {
+            Debug.Log("PTMenuManager: Resuming game...");
+        }
+        
+        // Hide the menu to resume game
+        HideMenu();
+    }
+    
+    /// <summary>
+    /// Quits the game (deprecated - now redirects to main menu)
+    /// </summary>
+    private void QuitGame()
+    {
+        if (showDebug)
+        {
+            Debug.Log("PTMenuManager: QuitGame called - redirecting to LoadMainMenu...");
+        }
+        
+        LoadMainMenu();
     }
     
     /// <summary>

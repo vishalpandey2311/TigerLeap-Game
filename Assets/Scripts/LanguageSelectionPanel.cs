@@ -59,22 +59,76 @@ public class LanguageSelectionPanel : MonoBehaviour
     }
     
     /// <summary>
-    /// Setup button listeners - Note: You should set these up in Inspector OnClick events instead
-    /// This is just for reference
+    /// Setup button listeners programmatically to avoid Inspector reference loss after scene transitions
     /// </summary>
     private void SetupButtonListeners()
     {
-        // Note: As per your requirement, you should set these up in Inspector OnClick events
-        // This is just showing what methods to call
+        // Ensure LanguageManager instance exists
+        LanguageManager.EnsureInstance();
+        
+        if (LanguageManager.Instance == null)
+        {
+            Debug.LogError("LanguageSelectionPanel: Cannot setup button listeners - LanguageManager.Instance is null!");
+            return;
+        }
+        
+        // Setup main language button (shows language panel)
+        if (languageButton != null)
+        {
+            languageButton.onClick.RemoveAllListeners();
+            languageButton.onClick.AddListener(ShowLanguagePanel);
+            if (showDebugLogs)
+                Debug.Log("LanguageSelectionPanel: Language button listener added programmatically");
+        }
+        
+        // Setup back button (hides language panel)
+        if (backButton != null)
+        {
+            backButton.onClick.RemoveAllListeners();
+            backButton.onClick.AddListener(HideLanguagePanel);
+            if (showDebugLogs)
+                Debug.Log("LanguageSelectionPanel: Back button listener added programmatically");
+        }
+        
+        // Setup English button
+        if (englishButton != null)
+        {
+            englishButton.onClick.RemoveAllListeners();
+            englishButton.onClick.AddListener(() => {
+                OnEnglishButtonClick();
+                HideLanguagePanel();
+            });
+            if (showDebugLogs)
+                Debug.Log("LanguageSelectionPanel: English button listener added programmatically");
+        }
+        
+        // Setup Chinese button
+        if (chineseButton != null)
+        {
+            chineseButton.onClick.RemoveAllListeners();
+            chineseButton.onClick.AddListener(() => {
+                OnChineseButtonClick();
+                HideLanguagePanel();
+            });
+            if (showDebugLogs)
+                Debug.Log("LanguageSelectionPanel: Chinese button listener added programmatically");
+        }
+        
+        // Setup Hindi button
+        if (hindiButton != null)
+        {
+            hindiButton.onClick.RemoveAllListeners();
+            hindiButton.onClick.AddListener(() => {
+                OnHindiButtonClick();
+                HideLanguagePanel();
+            });
+            if (showDebugLogs)
+                Debug.Log("LanguageSelectionPanel: Hindi button listener added programmatically");
+        }
         
         if (showDebugLogs)
         {
-            Debug.Log("LanguageSelectionPanel: Button listeners setup guide:");
-            Debug.Log("- Set Language Button OnClick to: LanguageSelectionPanel.ShowLanguagePanel");
-            Debug.Log("- Set English Button OnClick to: LanguageManager.ChangeToEnglish + LanguageSelectionPanel.HideLanguagePanel");
-            Debug.Log("- Set Chinese Button OnClick to: LanguageManager.ChangeToChinese + LanguageSelectionPanel.HideLanguagePanel");
-            Debug.Log("- Set Hindi Button OnClick to: LanguageManager.ChangeToHindi + LanguageSelectionPanel.HideLanguagePanel");
-            Debug.Log("- Set Back Button OnClick to: LanguageSelectionPanel.HideLanguagePanel");
+            Debug.Log("LanguageSelectionPanel: All button listeners setup complete - no more Inspector OnClick events needed!");
         }
     }
     
@@ -161,10 +215,26 @@ public class LanguageSelectionPanel : MonoBehaviour
             PlayButtonSound();
         }
         
-        // Change language
-        if (LanguageManager.Instance != null)
+        // Change language with additional safety checks - ensure instance exists
+        LanguageManager languageManager = LanguageManager.EnsureInstance();
+        
+        if (languageManager != null)
         {
-            LanguageManager.Instance.ChangeToEnglish();
+            if (languageManager.IsInitialized())
+            {
+                languageManager.ChangeToEnglish();
+            }
+            else
+            {
+                Debug.LogWarning("LanguageSelectionPanel: LanguageManager not fully initialized, forcing reinitialize...");
+                languageManager.ForceReinitialize();
+                // Try again after a short delay
+                StartCoroutine(ChangeLanguageAfterDelay("en"));
+            }
+        }
+        else
+        {
+            Debug.LogError("LanguageSelectionPanel: Failed to ensure LanguageManager instance!");
         }
         
         // Hide panel
@@ -187,10 +257,26 @@ public class LanguageSelectionPanel : MonoBehaviour
             PlayButtonSound();
         }
         
-        // Change language
-        if (LanguageManager.Instance != null)
+        // Change language with additional safety checks - ensure instance exists
+        LanguageManager languageManager = LanguageManager.EnsureInstance();
+        
+        if (languageManager != null)
         {
-            LanguageManager.Instance.ChangeToChinese();
+            if (languageManager.IsInitialized())
+            {
+                languageManager.ChangeToChinese();
+            }
+            else
+            {
+                Debug.LogWarning("LanguageSelectionPanel: LanguageManager not fully initialized, forcing reinitialize...");
+                languageManager.ForceReinitialize();
+                // Try again after a short delay
+                StartCoroutine(ChangeLanguageAfterDelay("zh"));
+            }
+        }
+        else
+        {
+            Debug.LogError("LanguageSelectionPanel: Failed to ensure LanguageManager instance!");
         }
         
         // Hide panel
@@ -213,10 +299,26 @@ public class LanguageSelectionPanel : MonoBehaviour
             PlayButtonSound();
         }
         
-        // Change language
-        if (LanguageManager.Instance != null)
+        // Change language with additional safety checks - ensure instance exists
+        LanguageManager languageManager = LanguageManager.EnsureInstance();
+        
+        if (languageManager != null)
         {
-            LanguageManager.Instance.ChangeToHindi();
+            if (languageManager.IsInitialized())
+            {
+                languageManager.ChangeToHindi();
+            }
+            else
+            {
+                Debug.LogWarning("LanguageSelectionPanel: LanguageManager not fully initialized, forcing reinitialize...");
+                languageManager.ForceReinitialize();
+                // Try again after a short delay
+                StartCoroutine(ChangeLanguageAfterDelay("hi"));
+            }
+        }
+        else
+        {
+            Debug.LogError("LanguageSelectionPanel: Failed to ensure LanguageManager instance!");
         }
         
         // Hide panel
@@ -245,6 +347,29 @@ public class LanguageSelectionPanel : MonoBehaviour
         if (audioSource != null && audioSource.clip != null)
         {
             audioSource.Play();
+        }
+    }
+    
+    /// <summary>
+    /// Changes language after a delay - useful when LanguageManager needs to reinitialize
+    /// </summary>
+    /// <param name="languageCode">Language code to change to</param>
+    private System.Collections.IEnumerator ChangeLanguageAfterDelay(string languageCode)
+    {
+        yield return new WaitForSeconds(0.5f); // Wait for LanguageManager to reinitialize
+        
+        LanguageManager languageManager = LanguageManager.EnsureInstance();
+        if (languageManager != null)
+        {
+            languageManager.ChangeLanguage(languageCode);
+            if (showDebugLogs)
+            {
+                Debug.Log($"LanguageSelectionPanel: Language changed to {languageCode} after delay");
+            }
+        }
+        else
+        {
+            Debug.LogError("LanguageSelectionPanel: Failed to ensure LanguageManager instance after delay!");
         }
     }
     

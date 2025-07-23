@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     private int totalMatchesNeeded = 0;  // Player hand cards * 4 = 12 matches needed
     private int currentMatches = 0;
     private int attempts = 0;  // Track number of attempts
+    private int failedAttempts = 0;  // Track number of wrong selections only
 
     [Header("Collection Grid")]
     private bool[,] collectionGridFilled = new bool[4, 3]; // Track filled positions
@@ -195,6 +196,7 @@ public class GameManager : MonoBehaviour
         
         // Reset attempts
         attempts = 0;
+        failedAttempts = 0;  // Reset failed attempts as well
         UpdateAttemptsUI();
         
         // Set total matches needed
@@ -292,6 +294,12 @@ public class GameManager : MonoBehaviour
         UpdateAttemptsUI();
     }
     
+    // Call this when a wrong match occurs (failed attempts incremented)
+    public void IncrementFailedAttempts()
+    {
+        failedAttempts++;
+    }
+    
     // Update the attempts UI element
     private void UpdateAttemptsUI()
     {
@@ -324,6 +332,9 @@ public class GameManager : MonoBehaviour
     // Play sound for wrong match
     public void PlayWrongMatchSound()
     {
+        // Increment failed attempts counter
+        IncrementFailedAttempts();
+        
         // Check PersistentSoundManager first
         bool soundEnabled = true;
         if (PersistentSoundManager.Instance != null)
@@ -1264,26 +1275,70 @@ public class GameManager : MonoBehaviour
     {
         if (FirebaseManager.Instance != null && !string.IsNullOrEmpty(selectedDifficulty))
         {
-            Debug.Log($"Saving {selectedDifficulty} score: {attempts}");
+            // Calculate the actual time taken (total time - remaining time)
+            float timeTakenInSeconds = totalGameTime - gameTimer;
             
-            // Start the async operation
-            var saveTask = FirebaseManager.Instance.UpdateGameScore(selectedDifficulty, attempts);
+            // Determine if this was a win or loss
+            bool isWin = (currentMatches >= totalMatchesNeeded);
+            
+            Debug.Log($"Saving {selectedDifficulty} game result:");
+            Debug.Log($"  - Last Score (Attempts): {attempts}");
+            Debug.Log($"  - Failed Attempts (Wrong Selections Only): {failedAttempts}");
+            Debug.Log($"  - Time Taken: {timeTakenInSeconds:F1} seconds");
+            Debug.Log($"  - Result: {(isWin ? "WIN" : "LOSE")}");
+            Debug.Log($"  - Matches: {currentMatches}/{totalMatchesNeeded}");
+            
+            // Start the async operation with new parameters - pass failedAttempts instead of attempts for wrong selections
+            var saveTask = FirebaseManager.Instance.UpdateGameScore(selectedDifficulty, attempts, failedAttempts, timeTakenInSeconds, isWin);
             
             // Wait for completion
             yield return new WaitUntil(() => saveTask.IsCompleted);
             
             if (saveTask.Exception != null)
             {
-                Debug.LogError($"Failed to save score: {saveTask.Exception}");
+                Debug.LogError($"Failed to save game statistics: {saveTask.Exception}");
             }
             else
             {
-                Debug.Log($"✅ Score saved successfully: {selectedDifficulty} = {attempts}");
+                Debug.Log($"✅ Game statistics saved successfully!");
             }
         }
         else
         {
-            Debug.LogWarning("⚠️ Cannot save score - FirebaseManager not found or difficulty not selected");
+            Debug.LogWarning("⚠️ Cannot save game statistics - FirebaseManager not found or difficulty not selected");
         }
+    }
+
+    // NEW: Method to retrieve and display game statistics (useful for UI)
+    public async void LoadAndDisplayGameStatistics()
+    {
+        if (FirebaseManager.Instance != null)
+        {
+            var stats = await FirebaseManager.Instance.GetGameStatistics();
+            if (stats != null)
+            {
+                Debug.Log($"📊 Current Game Statistics for {stats.GameType}:");
+                Debug.Log($"   Last Scores - Easy: {stats.EasyScore}, Medium: {stats.MediumScore}, Hard: {stats.HardScore}");
+                Debug.Log($"   Time Taken: {stats.TimeTaken} seconds");
+                Debug.Log($"   Failed Attempts: {stats.FailedAttempts}");
+                Debug.Log($"   Wins: {stats.Wins}, Losses: {stats.Loses}");
+                Debug.Log($"   Total Games: {stats.TotalGames}, Win Rate: {stats.WinRate:F1}%");
+                
+                // You can use these stats to update UI elements here
+                // Example: UpdateStatsUI(stats);
+            }
+        }
+    }
+
+    // NEW: Optional method to update UI with statistics (implement as needed)
+    private void UpdateStatsUI(GameStatistics stats)
+    {
+        // TODO: Implement UI updates based on your game's UI elements
+        // Example:
+        // if (easyScoreText != null) easyScoreText.text = stats.EasyScore.ToString();
+        // if (mediumScoreText != null) mediumScoreText.text = stats.MediumScore.ToString();
+        // if (hardScoreText != null) hardScoreText.text = stats.HardScore.ToString();
+        // if (winsText != null) winsText.text = stats.Wins.ToString();
+        // if (lossesText != null) lossesText.text = stats.Loses.ToString();
     }
 }

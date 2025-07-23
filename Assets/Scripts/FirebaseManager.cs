@@ -3,6 +3,7 @@ using Firebase;
 using Firebase.Auth;
 using Firebase.Firestore;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 public class FirebaseManager : MonoBehaviour
@@ -284,9 +285,15 @@ public class FirebaseManager : MonoBehaviour
             var gm1Ref = db.Collection("users").Document(userId).Collection("GM1").Document("scores");
             var mahjongData = new
             {
+                // Last played scores (always updated)
                 EasyScore = 0,
                 MediumScore = 0,
                 HardScore = 0,
+                // New tracking fields
+                TimeTaken = 0,
+                FailedAttempts = 0,
+                Wins = 0,
+                Lose = 0,
                 lastPlayed = Timestamp.GetCurrentTimestamp()
             };
             
@@ -307,9 +314,15 @@ public class FirebaseManager : MonoBehaviour
             var gm2Ref = db.Collection("users").Document(userId).Collection("GM2").Document("scores");
             var taichiData = new
             {
+                // Last played scores (always updated)
                 EasyScore = 0,
                 MediumScore = 0,
                 HardScore = 0,
+                // New tracking fields
+                TimeTaken = 0,
+                FailedAttempts = 0,
+                Wins = 0,
+                Lose = 0,
                 lastPlayed = Timestamp.GetCurrentTimestamp()
             };
             
@@ -582,8 +595,8 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    // NEW: Update game score based on difficulty
-    public async Task UpdateGameScore(string difficulty, int score)
+    // NEW: Update game score and statistics based on difficulty and game result
+    public async Task UpdateGameScore(string difficulty, int lastScore, int failedAttempts, float timeTaken, bool isWin)
     {
         if (!isFirebaseInitialized)
         {
@@ -619,7 +632,7 @@ public class FirebaseManager : MonoBehaviour
             
             var gameRef = db.Collection("users").Document(userId).Collection(gameCollection).Document("scores");
             
-            // Determine which field to update based on difficulty
+            // Determine which score field to update based on difficulty
             string scoreField = "";
             switch (difficulty.ToLower())
             {
@@ -637,32 +650,152 @@ public class FirebaseManager : MonoBehaviour
                     return;
             }
 
-            // Get current score to compare
+            // Get current statistics to increment
             var scoreDoc = await gameRef.GetSnapshotAsync();
-            int currentScore = 0;
             
-            if (scoreDoc.Exists && scoreDoc.ContainsField(scoreField))
+            // Current values (with defaults if document doesn't exist)
+            int currentWins = 0;
+            int currentLoses = 0;
+            int currentFailedAttempts = 0;
+            
+            if (scoreDoc.Exists)
             {
-                currentScore = scoreDoc.GetValue<int>(scoreField);
+                if (scoreDoc.ContainsField("Wins"))
+                    currentWins = scoreDoc.GetValue<int>("Wins");
+                if (scoreDoc.ContainsField("Lose"))
+                    currentLoses = scoreDoc.GetValue<int>("Lose");
+                if (scoreDoc.ContainsField("FailedAttempts"))
+                    currentFailedAttempts = scoreDoc.GetValue<int>("FailedAttempts");
             }
 
-            // Update score only if new score is better (lower attempts = better score)
-            if (currentScore == 0 || score < currentScore)
+            // Calculate new statistics
+            int newWins = currentWins + (isWin ? 1 : 0);
+            int newLoses = currentLoses + (isWin ? 0 : 1);
+            int newFailedAttempts = failedAttempts; // Store only last game's failed attempts (wrong selections)
+            
+            // Prepare update data - ALWAYS UPDATE (no comparison for "best" score)
+            var updateData = new Dictionary<string, object>
             {
-                await gameRef.UpdateAsync(scoreField, score);
-                await gameRef.UpdateAsync("lastPlayed", Timestamp.GetCurrentTimestamp());
-                
-                Debug.Log($"✅ {difficulty} score updated: {score} (Previous: {currentScore}) in {gameCollection}");
+                [scoreField] = lastScore,                           // Last played score for this difficulty
+                ["TimeTaken"] = Mathf.RoundToInt(timeTaken),       // Time taken in seconds (rounded)
+                ["FailedAttempts"] = newFailedAttempts,            // Last game's failed attempts only
+                ["Wins"] = newWins,                                // Total wins
+                ["Lose"] = newLoses,                               // Total losses
+                ["lastPlayed"] = Timestamp.GetCurrentTimestamp()   // Update last played timestamp
+            };
+
+            // Update the document with all new data
+            await gameRef.UpdateAsync(updateData);
+            
+            string resultText = isWin ? "WIN" : "LOSE";
+            Debug.Log($"✅ Game statistics updated for {difficulty} ({resultText}):");
+            Debug.Log($"   Last Score: {lastScore}");
+            Debug.Log($"   Time Taken: {timeTaken:F1}s");
+            Debug.Log($"   Total Wins: {newWins}");
+            Debug.Log($"   Total Losses: {newLoses}");
+            Debug.Log($"   Last Game Failed Attempts (Wrong Selections): {newFailedAttempts}");
+            Debug.Log($"   Game Collection: {gameCollection}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"❌ Error updating game statistics: {e.Message}");
+            throw; // Re-throw so the caller can handle it
+        }
+    }
+
+    // LEGACY METHOD - Keep for backward compatibility but redirect to new method
+    public async Task UpdateGameScore(string difficulty, int score)
+    {
+        // Default behavior: assume it's a loss with 60 seconds time if using old method
+        // Since we don't have failed attempts info, assume score represents failed attempts
+        await UpdateGameScore(difficulty, score, score, 60f, false);
+    }
+
+    // NEW: Get game statistics for display purposes
+    public async Task<GameStatistics> GetGameStatistics(string gameType = "")
+    {
+        if (!isFirebaseInitialized)
+        {
+            Debug.LogError("❌ Firebase not initialized");
+            return null;
+        }
+        
+        var user = GetCurrentUser();
+        if (user == null && !HasValidSession())
+        {
+            Debug.LogError("❌ No user logged in");
+            return null;
+        }
+
+        try
+        {
+            // Get user ID
+            string userId;
+            if (user != null)
+            {
+                userId = user.UserId;
             }
             else
             {
-                Debug.Log($"ℹ️ Score not updated. Current best: {currentScore}, New score: {score}");
+                string userEmail = GetCurrentUserEmail();
+                userId = userEmail.Replace(".", "_").Replace("@", "_");
+            }
+
+            // Use provided game type or current selection
+            string gameCollection = string.IsNullOrEmpty(gameType) ? 
+                                  (string.IsNullOrEmpty(currentGameSelection) ? "GM1" : currentGameSelection) : 
+                                  gameType;
+            
+            var gameRef = db.Collection("users").Document(userId).Collection(gameCollection).Document("scores");
+            var scoreDoc = await gameRef.GetSnapshotAsync();
+            
+            if (scoreDoc.Exists)
+            {
+                var stats = new GameStatistics
+                {
+                    EasyScore = scoreDoc.ContainsField("EasyScore") ? scoreDoc.GetValue<int>("EasyScore") : 0,
+                    MediumScore = scoreDoc.ContainsField("MediumScore") ? scoreDoc.GetValue<int>("MediumScore") : 0,
+                    HardScore = scoreDoc.ContainsField("HardScore") ? scoreDoc.GetValue<int>("HardScore") : 0,
+                    TimeTaken = scoreDoc.ContainsField("TimeTaken") ? scoreDoc.GetValue<int>("TimeTaken") : 0,
+                    FailedAttempts = scoreDoc.ContainsField("FailedAttempts") ? scoreDoc.GetValue<int>("FailedAttempts") : 0,
+                    Wins = scoreDoc.ContainsField("Wins") ? scoreDoc.GetValue<int>("Wins") : 0,
+                    Loses = scoreDoc.ContainsField("Lose") ? scoreDoc.GetValue<int>("Lose") : 0,
+                    GameType = gameCollection
+                };
+                
+                Debug.Log($"📊 Retrieved game statistics for {gameCollection}:");
+                Debug.Log($"   Easy: {stats.EasyScore}, Medium: {stats.MediumScore}, Hard: {stats.HardScore}");
+                Debug.Log($"   Wins: {stats.Wins}, Losses: {stats.Loses}, Failed Attempts: {stats.FailedAttempts}");
+                
+                return stats;
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ No statistics found for {gameCollection}");
+                return new GameStatistics { GameType = gameCollection };
             }
         }
         catch (Exception e)
         {
-            Debug.LogError($"❌ Error updating game score: {e.Message}");
-            throw; // Re-throw so the caller can handle it
+            Debug.LogError($"❌ Error retrieving game statistics: {e.Message}");
+            return null;
         }
     }
+}
+
+// NEW: Data structure for game statistics
+[System.Serializable]
+public class GameStatistics
+{
+    public int EasyScore;
+    public int MediumScore;  
+    public int HardScore;
+    public int TimeTaken;
+    public int FailedAttempts;
+    public int Wins;
+    public int Loses;
+    public string GameType;
+    
+    public int TotalGames => Wins + Loses;
+    public float WinRate => TotalGames > 0 ? (float)Wins / TotalGames * 100f : 0f;
 }

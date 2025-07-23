@@ -40,16 +40,34 @@ public class LanguageManager : MonoBehaviour
     
     private void Awake()
     {
-        // Singleton pattern
+        // Robust singleton pattern with better persistence handling
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            // Ensure this GameObject stays in the root of DontDestroyOnLoad
+            transform.SetParent(null);
+            
+            if (showDebugLogs)
+            {
+                Debug.Log("LanguageManager: Instance created and set to DontDestroyOnLoad");
+            }
+        }
+        else if (Instance != this)
+        {
+            if (showDebugLogs)
+            {
+                Debug.Log("LanguageManager: Duplicate instance found, destroying this GameObject");
+            }
+            Destroy(gameObject);
+            return;
         }
         else
         {
-            Destroy(gameObject);
-            return;
+            // This is the same instance, ensure it's still properly configured
+            DontDestroyOnLoad(gameObject);
+            transform.SetParent(null);
         }
     }
     
@@ -59,6 +77,41 @@ public class LanguageManager : MonoBehaviour
         {
             StartCoroutine(InitializeLocalization());
         }
+    }
+    
+    private void OnEnable()
+    {
+        // Subscribe to scene loaded events to ensure language is applied when returning to scenes
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    
+    private void OnDisable()
+    {
+        // Unsubscribe from scene loaded events
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    
+    /// <summary>
+    /// Called when a new scene is loaded - ensures language is properly applied
+    /// </summary>
+    /// <param name="scene">The loaded scene</param>
+    /// <param name="mode">The load mode</param>
+    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log($"LanguageManager: Scene '{scene.name}' loaded, reapplying language: {currentLanguageCode}");
+        }
+        
+        // Ensure this LanguageManager is still properly configured
+        if (Instance == this)
+        {
+            DontDestroyOnLoad(gameObject);
+            transform.SetParent(null);
+        }
+        
+        // Reapply the current language to ensure all new UI elements are properly localized
+        StartCoroutine(ReapplyCurrentLanguage());
     }
     
     #endregion
@@ -156,10 +209,94 @@ public class LanguageManager : MonoBehaviour
         return availableLanguages;
     }
     
+    /// <summary>
+    /// Manually refreshes the current language - useful when returning to MainMenu from other scenes
+    /// </summary>
+    public void RefreshCurrentLanguage()
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log($"LanguageManager: Manually refreshing current language: {currentLanguageCode}");
+        }
+        
+        StartCoroutine(ReapplyCurrentLanguage());
+    }
+    
+    /// <summary>
+    /// Force reinitialize the localization system - useful for troubleshooting
+    /// </summary>
+    public void ForceReinitialize()
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log("LanguageManager: Force reinitializing localization system");
+        }
+        
+        StartCoroutine(InitializeLocalization());
+    }
+    
+    /// <summary>
+    /// Ensures LanguageManager instance exists and is properly initialized
+    /// Call this from other scripts when they need to use LanguageManager
+    /// </summary>
+    public static LanguageManager EnsureInstance()
+    {
+        if (Instance == null)
+        {
+            // Try to find existing LanguageManager in the scene
+            Instance = FindFirstObjectByType<LanguageManager>();
+            
+            if (Instance != null)
+            {
+                Debug.Log("LanguageManager: Found existing instance in scene");
+                DontDestroyOnLoad(Instance.gameObject);
+                Instance.transform.SetParent(null);
+            }
+            else
+            {
+                // Create new LanguageManager if none exists
+                GameObject languageManagerGO = new GameObject("LanguageManager");
+                Instance = languageManagerGO.AddComponent<LanguageManager>();
+                DontDestroyOnLoad(languageManagerGO);
+                
+                Debug.Log("LanguageManager: Created new instance as none was found");
+                
+                // Initialize with default settings
+                Instance.initializeOnStart = true;
+                Instance.showDebugLogs = true;
+                Instance.SetupDefaultLanguages();
+                Instance.StartCoroutine(Instance.InitializeLocalization());
+            }
+        }
+        
+        return Instance;
+    }
+
+    /// <summary>
+    /// Checks if the LanguageManager is properly initialized
+    /// </summary>
+    /// <returns>True if initialized and ready to use</returns>
+    public bool IsInitialized()
+    {
+        return LocalizationSettings.InitializationOperation.IsDone && !string.IsNullOrEmpty(currentLanguageCode);
+    }
+    
     #endregion
     
     #region Private Methods
     
+    /// <summary>
+    /// Reapplies the current language after scene loading
+    /// </summary>
+    private IEnumerator ReapplyCurrentLanguage()
+    {
+        // Wait a frame to ensure all UI elements are initialized
+        yield return null;
+        
+        // Reapply the current language
+        yield return SetLanguage(currentLanguageCode);
+    }
+
     /// <summary>
     /// Sets the language in the localization system
     /// </summary>
