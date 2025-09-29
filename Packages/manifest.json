@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.iam1337.extosc": "https://github.com/iam1337/extOSC.git#upm",
     "com.siccity.gltfutility": "https://github.com/Siccity/GLTFUtility.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.navigation": "2.0.7",

@@ -22,7 +22,8 @@ public class CubeMover : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+        // Move in world space, always in -Z direction regardless of rotation
+        transform.position += Vector3.forward * moveSpeed * Time.deltaTime;
         
         // Check if cube has moved beyond the destruction point
         if (transform.position.z <= destructionZPosition)
@@ -32,11 +33,9 @@ public class CubeMover : MonoBehaviour
                 Debug.Log($"CubeMover: Destroying cube at position {transform.position}");
             }
             
-            // Notify score manager that cube was missed
-            if (PTScoreManager.Instance != null)
-            {
-                PTScoreManager.Instance.OnCubeMissed();
-            }
+            // Notify managers that cube was missed
+            if (PTScoreManager.Instance != null) PTScoreManager.Instance.OnCubeMissed();
+            if (PTGameManager.Instance != null) PTGameManager.Instance.NotifyMiss();
             
             Destroy(gameObject);
         }

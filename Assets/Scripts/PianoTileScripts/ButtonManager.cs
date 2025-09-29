@@ -176,12 +176,36 @@ public class ButtonManager : MonoBehaviour
             Renderer cubeRenderer = cube.GetComponent<Renderer>();
             if (cubeRenderer != null)
             {
-                cubeRenderer.material = materialToApply;
+                // Get existing materials
+                Material[] materials = cubeRenderer.materials;
+                
+                // Find the index of the "Top" material
+                int topMaterialIndex = -1;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    if (materials[i].name.Contains("Top"))
+                    {
+                        topMaterialIndex = i;
+                        break;
+                    }
+                }
+                
+                // If we found the "Top" material, only change that one
+                if (topMaterialIndex != -1)
+                {
+                    materials[topMaterialIndex] = materialToApply;
+                    cubeRenderer.materials = materials;
+                }
+                else
+                {
+                    // Fallback: if we can't find "Top" material, change all materials
+                    cubeRenderer.material = materialToApply;
+                }
                 
                 if (showDebug)
                 {
                     int buttonIndex = GetButtonIndexFromPosition(spawnPosition);
-                    Debug.Log($"ButtonManager: Applied material '{materialToApply.name}' to cube for button {buttonIndex}");
+                    Debug.Log($"ButtonManager: Applied material '{materialToApply.name}' to cube for button {buttonIndex} (Top material only)");
                 }
             }
         }

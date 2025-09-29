@@ -75,6 +75,10 @@ MonoBehaviour:
     m_Key: button_try_again
     m_Metadata:
       m_Items: []
+  - m_Id: 3121350836314112
+    m_Key: attempts_text
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

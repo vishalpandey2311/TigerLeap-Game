@@ -4,9 +4,11 @@ using System.Linq;
 
 public class CardSpawner : MonoBehaviour
 {
-    [Header("Grid Size")]
+    [Header("Grid Size & Position")]
     public int rows = 5;            // Fixed rows
     public int cols = 9;            // Fixed columns
+    [Tooltip("Position where the main card grid will spawn")]
+    public Vector3 mainGridPosition = Vector3.zero;  // Position to spawn the main grid
 
     [Header("Card Prefabs")]
     public GameObject[] cardPrefabs; // Inspector mein unique prefabs
@@ -196,11 +198,15 @@ public class CardSpawner : MonoBehaviour
             {
                 if (index >= deck.Count) return;
 
-                Vector3 pos = new Vector3(
+                // Calculate local grid position
+                Vector3 localPos = new Vector3(
                     startX + c * offsetX,
                     0.01f,
                     startZ + r * offsetZ
                 );
+
+                // Add the mainGridPosition offset to position the entire grid
+                Vector3 pos = mainGridPosition + localPos;
                 
                 // Card ko instantiate karo
                 GameObject cardObj = Instantiate(deck[index], pos, Quaternion.identity, transform);

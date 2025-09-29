@@ -59,6 +59,7 @@ public class CubeButton : MonoBehaviour
         // Check for key press (start holding)
         if (Input.GetKeyDown(buttonKey))
         {
+            if (PTGameManager.Instance != null) PTGameManager.Instance.NotifyUserTrigger();
             StartHoldingKey();
         }
         
@@ -118,6 +119,7 @@ public class CubeButton : MonoBehaviour
     /// </summary>
     public void PressButton()
     {
+    if (PTGameManager.Instance != null) PTGameManager.Instance.NotifyUserTrigger();
         CatchNearbyMovingCubes();
         
         if (!isPressed)

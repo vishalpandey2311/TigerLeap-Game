@@ -305,7 +305,7 @@ public class GameManager : MonoBehaviour
     {
         if (attemptsText != null)
         {
-            attemptsText.text = "Attempts: " + attempts;
+            attemptsText.text = "" + attempts;
         }
     }
     
@@ -429,6 +429,13 @@ public class GameManager : MonoBehaviour
         if (!cardTypeGroups.ContainsKey(cardTypeId))
         {
             cardTypeGroups[cardTypeId] = new List<CardController>();
+            
+            // NEW: Track set started when first card of this type is matched
+            GameObject analyticsObj = GameObject.Find("MahjongAnalyticsManager");
+            if (analyticsObj != null)
+            {
+                analyticsObj.SendMessage("TrackSetStarted", cardTypeId, SendMessageOptions.DontRequireReceiver);
+            }
         }
         cardTypeGroups[cardTypeId].Add(matchedCard);
 
@@ -436,6 +443,14 @@ public class GameManager : MonoBehaviour
         if (cardTypeGroups[cardTypeId].Count >= 4 && !completedCardTypes.Contains(cardTypeId))
         {
             completedCardTypes.Add(cardTypeId);
+            
+            // NEW: Track set completed when all 4 cards of this type are found
+            GameObject analyticsObj = GameObject.Find("MahjongAnalyticsManager");
+            if (analyticsObj != null)
+            {
+                analyticsObj.SendMessage("TrackSetCompleted", cardTypeId, SendMessageOptions.DontRequireReceiver);
+            }
+            
             StartCoroutine(ApplyCompletionEffectToSet(cardTypeId));
         }
         
@@ -522,6 +537,13 @@ public class GameManager : MonoBehaviour
         
         // Calculate time taken (total time - remaining time)
         float timeTaken = totalGameTime - gameTimer;
+        
+        // NEW: End analytics tracking for WIN
+        GameObject analyticsObj = GameObject.Find("MahjongAnalyticsManager");
+        if (analyticsObj != null)
+        {
+            analyticsObj.SendMessage("EndGameTracking", true, SendMessageOptions.DontRequireReceiver);
+        }
         
         // NEW: Save score to database
         yield return StartCoroutine(SaveScoreToDatabase());
@@ -706,6 +728,13 @@ public class GameManager : MonoBehaviour
     gameTimer = totalGameTime; // This will be the selected difficulty time
     isTimerRunning = true;
     UpdateTimerUI();
+    
+    // NEW: Start analytics tracking when the actual gameplay begins
+    GameObject analyticsManager = GameObject.Find("MahjongAnalyticsManager");
+    if (analyticsManager != null)
+    {
+        analyticsManager.SendMessage("StartGameTracking", selectedDifficulty, SendMessageOptions.DontRequireReceiver);
+    }
 
     // Show pause button now that gameplay is starting
     if (pauseButton != null)
@@ -1005,6 +1034,13 @@ public class GameManager : MonoBehaviour
     {
         // Stop the timer
         isTimerRunning = false;
+        
+        // NEW: End analytics tracking for LOSE
+        GameObject analyticsObj = GameObject.Find("MahjongAnalyticsManager");
+        if (analyticsObj != null)
+        {
+            analyticsObj.SendMessage("EndGameTracking", false, SendMessageOptions.DontRequireReceiver);
+        }
         
         // NEW: Save score to database (even on game over)
         yield return StartCoroutine(SaveScoreToDatabase());

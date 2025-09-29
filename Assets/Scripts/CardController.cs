@@ -206,6 +206,13 @@ public class CardController : MonoBehaviour
         if (isBusy) return;
         if (isMatched) return;
         
+        // Track card interaction for analytics (timing tracking)
+        GameObject analyticsObj = GameObject.Find("MahjongAnalyticsManager");
+        if (analyticsObj != null)
+        {
+            analyticsObj.SendMessage("TrackCardInteraction", gameObject, SendMessageOptions.DontRequireReceiver);
+        }
+        
         // Increment attempts when a card is clicked
         if (GameManager.Instance != null && !isFlipped)
         {
@@ -240,6 +247,18 @@ public class CardController : MonoBehaviour
 
             if (hasMatch)
             {
+                // CORRECT MATCH - Track analytics
+                GameObject analyticsObj = GameObject.Find("MahjongAnalyticsManager");
+                if (analyticsObj != null)
+                {
+                    var analyticsComponent = analyticsObj.GetComponent(typeof(MonoBehaviour));
+                    if (analyticsComponent != null)
+                    {
+                        // Use SendMessage to avoid compilation issues
+                        analyticsObj.SendMessage("TrackCorrectAttempt", gameObject, SendMessageOptions.DontRequireReceiver);
+                    }
+                }
+                
                 // Card match ho gaya, permanently face-up rakho
                 isMatched = true;
 
@@ -248,6 +267,18 @@ public class CardController : MonoBehaviour
             }
             else
             {
+                // INCORRECT MATCH - Track analytics
+                GameObject analyticsObj = GameObject.Find("MahjongAnalyticsManager");
+                if (analyticsObj != null)
+                {
+                    var analyticsComponent = analyticsObj.GetComponent(typeof(MonoBehaviour));
+                    if (analyticsComponent != null)
+                    {
+                        // Use SendMessage to avoid compilation issues
+                        analyticsObj.SendMessage("TrackIncorrectAttempt", gameObject, SendMessageOptions.DontRequireReceiver);
+                    }
+                }
+                
                 // Play wrong match sound
                 if (GameManager.Instance != null)
                 {

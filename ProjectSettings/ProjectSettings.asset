@@ -825,8 +825,22 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Android: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED
-    Standalone: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED
+    Android: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED;EXTOSC
+    EmbeddedLinux: EXTOSC
+    GameCoreScarlett: EXTOSC
+    GameCoreXboxOne: EXTOSC
+    Kepler: EXTOSC
+    LinuxHeadlessSimulation: EXTOSC
+    Nintendo Switch: EXTOSC
+    PS4: EXTOSC
+    PS5: EXTOSC
+    QNX: EXTOSC
+    ReservedCFE: EXTOSC
+    Standalone: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED;EXTOSC
+    VisionOS: EXTOSC
+    WebGL: EXTOSC
+    XboxOne: EXTOSC
+    tvOS: EXTOSC
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

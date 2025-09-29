@@ -24,6 +24,15 @@ public class PTSpawnManager : MonoBehaviour
         new Vector3(1f, 0.5f, 200f),
         new Vector3(4f, 0.5f, 200f)
     };
+
+    [Tooltip("Predefined spawn rotations for the cubes (in Euler angles)")]
+    public Vector3[] spawnRotations = new Vector3[]
+    {
+        new Vector3(0f, 0f, 0f),
+        new Vector3(0f, 0f, 0f),
+        new Vector3(0f, 0f, 0f),
+        new Vector3(0f, 0f, 0f)
+    };
     
     [Header("Material Assignment")]
     [Tooltip("Apply button materials to spawned cubes")]
@@ -119,12 +128,13 @@ public class PTSpawnManager : MonoBehaviour
             return;
         }
         
-        // Pick a random spawn position
+        // Pick a random spawn position and its corresponding rotation
         int randomIndex = Random.Range(0, spawnPositions.Length);
         Vector3 spawnPosition = spawnPositions[randomIndex];
+        Vector3 spawnRotation = randomIndex < spawnRotations.Length ? spawnRotations[randomIndex] : Vector3.zero;
         
-        // Instantiate the cube
-        GameObject spawnedCube = Instantiate(cubePrefab, spawnPosition, Quaternion.identity);
+        // Instantiate the cube with the specified rotation
+        GameObject spawnedCube = Instantiate(cubePrefab, spawnPosition, Quaternion.Euler(spawnRotation));
         
         // Apply button material if enabled
         if (applyButtonMaterials && ButtonManager.Instance != null)
@@ -169,6 +179,13 @@ public class PTSpawnManager : MonoBehaviour
         if (spawnInterval < 0f)
         {
             spawnInterval = 0f;
+        }
+
+        // Ensure spawnRotations array matches spawnPositions length
+        if (spawnPositions != null && spawnRotations != null && spawnRotations.Length != spawnPositions.Length)
+        {
+            System.Array.Resize(ref spawnRotations, spawnPositions.Length);
+            Debug.LogWarning("PTSpawnManager: Resized spawnRotations array to match spawnPositions length");
         }
     }
     
